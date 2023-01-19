@@ -132,6 +132,26 @@ for i in range(num_maps):
     generate_maps_command = f"python3 cliMapGenerator.py --map_name {map_name} --width {width} --height {height} --map_type {map_type} --num_maps {num_maps_to_generate} --map_res {map_res} --save_path {maps_path} --iterations {iterations} --num_obstacles {num_obstacles} --obstacle_size {obstacle_size} --corridor_width {corridor_width}"
     os.system(generate_maps_command)
     
+    
+    # Add map generation parameters to map folder ------------
+    f = open(os.path.join(local_maps, map_name, "generation_params.yaml"), "w")
+        
+    if map_type == "indoor":
+        f.write("width: " + str(width) + "\n" +
+                "height: " + str(height) + "\n" +
+                "map_type: " + map_type + "\n" +
+                "map_res: " + str(map_res) + "\n" +
+                "iterations: " + str(iterations) + "\n" +
+                "corridor_width: " + str(corridor_width))
+    elif map_type == "outdoor":
+        f.write("width: " + str(width) + "\n" +
+                "height: " + str(height) + "\n" +
+                "map_type: " + map_type + "\n" +
+                "map_res: " + str(map_res) + "\n" +
+                "num_obstacles: " + str(num_obstacles) + "\n" +
+                "obstacle_size: " + str(obstacle_size))
+    f.close()
+    
     #---------------------------------------------------------
     # Add padding to map image to 150x150 pixels #------------
     
@@ -148,7 +168,7 @@ for i in range(num_maps):
     # Run simulations and record data #-----------------------
     os.mkdir(os.path.join(local_records, map_name))
 
-    local_planners = ["dwa", "teb"]
+    local_planners = ["dwa"]
     robot_models = ["burger"]    
     dyn_obs_velocity = (0.1, 2.0)
     obs_radius = (0.2, 1.5)
@@ -164,7 +184,7 @@ for i in range(num_maps):
         for robot in robot_models:
             for sett in obstacles_settings:
                 sim_id = "sim-" + str(uuid())
-                num_dyn_obs = 30
+                num_dyn_obs = sett
                 # num_static_obs = sett[1]
                 roslaunch_command = f""" roslaunch navpred-data-recorder start_arena_navpred.launch map_file:={map_name} num_episodes:={num_episodes} num_dynamic:={num_dyn_obs} obs_max_radius:={obs_radius[1]} obs_min_radius:={obs_radius[0]} obs_max_lin_vel:={dyn_obs_velocity[1]} obs_min_lin_vel:={dyn_obs_velocity[0]} local_planner:={planner} sim_id:={sim_id}"""
                                          
