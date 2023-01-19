@@ -12,6 +12,7 @@ import yaml
 import argparse 
 import rospkg
 import json
+from pathlib import Path
 
 from utils import Utils
 
@@ -20,6 +21,33 @@ def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--dir", "-d")
+    
+    parser.add_argument(
+    "--pipeline",
+    action="store",
+    dest="pipeline",
+    default="original",
+    help="Name of the pipeline you are currently using",
+    required=False,
+    )
+    
+    parser.add_argument(
+    "--map_name",
+    action="store",
+    dest="map_name",
+    default="",
+    help="Name of the map you want to get complexity from",
+    required=True,
+    )
+    
+    parser.add_argument(
+    "--sim_id",
+    action="store",
+    dest="sim_id",
+    default="",
+    help="ID of the simulation",
+    required=True,
+    )
 
     return parser.parse_args()
 
@@ -42,56 +70,59 @@ class Config:
 
 
 class Metrics:
-    def __init__(self, dir):
-        self.dir = dir
+    def __init__(self, dir, map_name, sim_id, pipeline):
+        self.dir = Path(__file__).resolve().parent.parent / "pipelines" / pipeline / "sims_data_records" / map_name / sim_id
 
-        self.robot_params = Metrics.get_robot_params(self.dir)
-
-        episode = pd.read_csv(self.dir + "/episode.csv", converters={
+        episode = pd.read_csv(self.dir / "episode.csv", converters={
             "data": lambda val: 0 if len(val) <= 0 else int(val) 
         })
-        laserscan = pd.read_csv(self.dir + "/scan.csv", converters={
-            "data": Utils.string_to_float_list
-        })
-        odom = pd.read_csv(self.dir + "/odom.csv", converters={
-            "data": lambda col: json.loads(col.replace("'", "\""))
-        })
-        cmd_vel = pd.read_csv(self.dir + "/cmd_vel.csv", converters={
-            "data": Utils.string_to_float_list
-        })
-        start_goal = pd.read_csv(self.dir + "/start_goal.csv", converters={
-            "start": Utils.string_to_float_list,
-            "goal": Utils.string_to_float_list
-        })
 
-        laserscan = laserscan.rename(columns={"data": "laserscan"})
-        odom = odom.rename(columns={"data": "odom"})
-        cmd_vel = cmd_vel.rename(columns={"data": "cmd_vel"})
+        robots_path = os.path.join(self.dir, "robots")
+        for robot in os.listdir(robots_path):
+            robot_dir = os.path.join(robots_path, robot)
+            self.robot_params = Metrics.get_robot_params(robot_dir)
 
-        data = pd.concat([episode, laserscan, odom, cmd_vel, start_goal], axis=1, join="inner")
-        data = data.loc[:,~data.columns.duplicated()].copy()
+            laserscan = pd.read_csv(os.path.join(robot_dir, "scan.csv"), converters={
+                "data": Utils.string_to_float_list
+            })
+            odom = pd.read_csv(os.path.join(robot_dir, "odom.csv"), converters={
+                "data": lambda col: json.loads(col.replace("'", "\""))
+            })
+            cmd_vel = pd.read_csv(os.path.join(robot_dir, "cmd_vel.csv"), converters={
+                "data": Utils.string_to_float_list
+            })
+            start_goal = pd.read_csv(os.path.join(robot_dir, "start_goal.csv"), converters={
+                "start": Utils.string_to_float_list,
+                "goal": Utils.string_to_float_list
+            })
 
-        i = 0
+            laserscan = laserscan.rename(columns={"data": "laserscan"})
+            odom = odom.rename(columns={"data": "odom"})
+            cmd_vel = cmd_vel.rename(columns={"data": "cmd_vel"})
 
-        episode_data = {}
+            data = pd.concat([episode, laserscan, odom, cmd_vel, start_goal], axis=1, join="inner")
+            data = data.loc[:,~data.columns.duplicated()].copy()
 
-        while True:
-            current_episode = data[data["episode"] == i]
+            i = 0
 
-            if len(current_episode) <= 0:
-                break
-            
-            episode_data[i] = self.analyze_episode(current_episode, i)
-            i = i + 1
+            episode_data = {}
 
-        data = pd.DataFrame(episode_data).transpose().set_index("episode")
-        data.to_csv(os.path.join(dir, "metrics.csv"))
+            while True:
+                current_episode = data[data["episode"] == i]
+
+                if len(current_episode) <= 0:
+                    break
+                
+                episode_data[i] = self.analyze_episode(current_episode, i)
+                i = i + 1
+
+            data = pd.DataFrame(episode_data).transpose().set_index("episode")
+            data.to_csv(os.path.join(robot_dir, "metrics.csv"))
 
         pass
 
     def analyze_episode(self, episode, index):
         positions, velocities = [], []
-
         for odom in episode["odom"]:
             positions.append(np.array(odom["position"]))
             velocities.append(np.array(odom["velocity"]))
@@ -359,6 +390,7 @@ class Metrics:
 
     @staticmethod
     def get_robot_params(dir):
+
         with open(os.path.join(dir, "params.yaml")) as file:
             content = yaml.safe_load(file)
 
@@ -378,4 +410,4 @@ class Metrics:
 if __name__ == "__main__":
     arguments = parse_args()
 
-    Metrics(arguments.dir)
+    Metrics(arguments.dir, arguments.map_name, arguments.sim_id, arguments.pipeline)

@@ -110,7 +110,7 @@ class MainRecorder:
     def __init__(self):
         self.dir = os.path.dirname(os.path.abspath(__file__))
         pipeline = rospy.get_param("navpred_pipeline")
-        self.results_dir = os.path.join(self.dir, "../pipelines/" + pipeline + "/sims_data_records", rospy.get_param("/map_file"))
+        self.results_dir = os.path.join(self.dir, "../pipelines/" + pipeline + "/sims_data_records", rospy.get_param("/map_file"), rospy.get_param("/sim_id"))
         self.robots_dir = os.path.join(self.results_dir, "robots")
         self.obstacles_dir = os.path.join(self.results_dir, "obstacles")
         
@@ -119,38 +119,38 @@ class MainRecorder:
         os.mkdir(self.obstacles_dir)
         
         # Subscribers
-        self.done_reason_sub = rospy.Subscriber("/done_reason", String, self.done_reason_callback)
+        # self.done_reason_sub = rospy.Subscriber("/done_reason", String, self.done_reason_callback)
         self.clock_sub = rospy.Subscriber("/clock", Clock, self.clock_callback)
         self.scenario_reset_sub = rospy.Subscriber("/scenario_reset", Int16, self.scenario_reset_callback)
         
         # Data Files
         self.write_params()
-        self.write_data("done_reason", ["episode", "done_reason"], mode="w")
+        # self.write_data("done_reason", ["episode", "done_reason"], mode="w")
         self.write_data("num_obstacles", ["episode", "dynamic_obs", "static_obs"], mode="w")
         self.write_data("episode", ["time", "episode"], mode="w")
         
         # Class Variables
         self.first_run = True
-        self.done_reason = "None"
+        # self.done_reason = "None"
         self.current_episode = 0
         self.config = self.read_config()
-        self.current_time = None
+        self.current_time = 0.0
 
     def read_config(self):
         with open(self.dir + "/data_recorder_config.yaml") as file:
             return yaml.safe_load(file)
 
-    def done_reason_callback(self, msg: String):
-        self.done_reason = msg.data
+    # def done_reason_callback(self, msg: String):
+    #     self.done_reason = msg.data
         
     def scenario_reset_callback(self, data: Int16):
         if self.first_run:
             self.write_obs_params()
             self.first_run = False
-
+        
         self.current_episode = data.data
         
-        self.write_data("done_reason", [self.current_episode, self.done_reason])
+        # self.write_data("done_reason", [self.current_episode, self.done_reason])
         
         num_dynamic_obs = rospy.get_param("/obstacles/num_dynamic")
         num_static_obs = rospy.get_param("/obstacles/num_static")
@@ -161,7 +161,7 @@ class MainRecorder:
     def clock_callback(self, clock: Clock):
         current_simulation_action_time = clock.clock.secs * 10e9 + clock.clock.nsecs
 
-        if not self.current_time:
+        if self.current_time == 0.0:
             self.current_time = current_simulation_action_time
 
         time_diff = (current_simulation_action_time - self.current_time) / 1e6 ## in ms
@@ -170,8 +170,8 @@ class MainRecorder:
             return
 
         self.current_time = current_simulation_action_time
-        
         self.write_data("episode", [self.current_time, self.current_episode])
+        
 
     
     def write_obs_params(self):
@@ -276,7 +276,7 @@ class RobotRecorder:
 
         self.dir = os.path.dirname(os.path.abspath(__file__))
         pipeline = rospy.get_param("/navpred_pipeline")
-        self.results_dir = os.path.join(self.dir, "../pipelines/" + pipeline + "/sims_data_records", rospy.get_param("/map_file"))
+        self.results_dir = os.path.join(self.dir, "../pipelines/" + pipeline + "/sims_data_records", rospy.get_param("/map_file"), rospy.get_param("/sim_id"))
         # self.result_dir = os.path.join(self.dir, "data", datetime.now().strftime("%d-%m-%Y_%H-%M-%S")) + "_" + rospy.get_namespace().replace("/", "")
                 
         self.this_robot_name = rospy.get_namespace().replace("/", "")
@@ -327,7 +327,7 @@ class RobotRecorder:
         self.clock_sub = rospy.Subscriber("/clock", Clock, self.clock_callback)
         self.scenario_reset_sub = rospy.Subscriber("/scenario_reset", Int16, self.scenario_reset_callback)
 
-        self.current_time = None
+        self.current_time = 0.0
 
         print(rosparam.print_params("", "/"))
         
@@ -340,17 +340,13 @@ class RobotRecorder:
     def scenario_reset_callback(self, data: Int16):
         self.current_episode = data.data
         
-        self.write_data("start_goal", [
-            self.current_episode, 
-            rospy.get_param(rospy.get_namespace() + "start", [0, 0, 0]), 
-            rospy.get_param(rospy.get_namespace() + "goal", [0, 0, 0])
-        ])
+
         
 
     def clock_callback(self, clock: Clock):
         current_simulation_action_time = clock.clock.secs * 10e9 + clock.clock.nsecs
 
-        if not self.current_time:
+        if self.current_time == 0.0:
             self.current_time = current_simulation_action_time
 
         time_diff = (current_simulation_action_time - self.current_time) / 1e6 ## in ms
@@ -364,6 +360,12 @@ class RobotRecorder:
             topic_name, data = collector.get_data()
             
             self.write_data(topic_name, [self.current_time, data])
+            
+        self.write_data("start_goal", [
+            self.current_episode, 
+            rospy.get_param(rospy.get_namespace() + "start", [0, 0, 0]), 
+            rospy.get_param(rospy.get_namespace() + "goal", [0, 0, 0])
+        ])
 
     def get_class_for_topic_name(self, topic_name):
         if "/scan" in topic_name:

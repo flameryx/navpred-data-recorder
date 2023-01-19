@@ -2,6 +2,7 @@
 @author Ricardo Sosa Melo
 '''
 import os
+import shutil
 import glob
 from uuid import uuid4 as uuid
 from pathlib import Path
@@ -31,6 +32,15 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--num_episodes",
+    action="store",
+    dest="num_episodes",
+    default=1,
+    help="How many episodes do you want to run on each simulation",
+    required=False,
+)
+
+parser.add_argument(
     "--maps_path",
     action="store",
     dest="maps_path",
@@ -48,14 +58,25 @@ parser.add_argument(
     required=False,
 )
 
+parser.add_argument(
+    "--del_records",
+    action="store",
+    dest="del_records",
+    default=False,
+    help="Do you want to delete all recorded data before starting the pipeline",
+    required=False,
+)
+
 
 args = parser.parse_args()
 
 num_maps = int(args.num_maps)
 num_settings = int(args.num_settings)
+num_episodes = int(args.num_episodes)
 maps_path = args.maps_path
 records_path = args.records_path
-
+del_records = bool(args.del_records)
+    
 #---------------------------------------------------
 # Create necessary directories #--------------------
 
@@ -74,13 +95,30 @@ dnn_input = Path(dirname) / "dnn_input_data"
 dnn_input.mkdir(parents=True, exist_ok=True)
 
 #---------------------------------------------------
+# Delete recorded data and their folders#-----------
+print(str(local_maps.resolve()))
+if del_records:
+    shutil.rmtree(str(local_maps.resolve()))
+        
+    shutil.rmtree(str(local_records.resolve()))
+
+    shutil.rmtree(str(dnn_input.resolve()))
+    
+#--------------------------------------------------
+# Recreate deleted folders #-----------------------
+local_maps.mkdir(parents=True, exist_ok=True)
+local_records.mkdir(parents=True, exist_ok=True)
+dnn_input.mkdir(parents=True, exist_ok=True)
+
+
+#---------------------------------------------------
 # Pipeline loop #-----------------------------------
 
 for i in range(num_maps):
     
     # Generate maps #-----------------------------------------
 
-    map_name = str(uuid())
+    map_name = "map-" + str(uuid())
     width = randint(80, 150)
     height = randint(80, 150)
     map_type = choice(["indoor", "outdoor"])
@@ -108,24 +146,31 @@ for i in range(num_maps):
     
     #---------------------------------------------------------
     # Run simulations and record data #-----------------------
+    os.mkdir(os.path.join(local_records, map_name))
 
-    local_planners = ["dwa"]
+    local_planners = ["dwa", "teb"]
     robot_models = ["burger"]    
-    dyn_obs_velocity = (0.1, 0.5)
-    dyn_obs_radius = (0.2, 0.8)
-    static_obs_vertices = (3, 8)
+    dyn_obs_velocity = (0.1, 2.0)
+    obs_radius = (0.2, 1.5)
+    # static_obs_vertices = (3, 8)
     obstacles_settings = []
-    
+    num_dyn_obs = (0, 15)
+        
     for j in range(num_settings):
-        obstacles_settings.append((randint(0, 15), randint(0, 15)))
+        # obstacles_settings.append((randint(0, 15), randint(0, 15)))
+        obstacles_settings.append(randint(num_dyn_obs[0], num_dyn_obs[1]))
     
     for planner in local_planners:
         for robot in robot_models:
             for sett in obstacles_settings:
-                num_dyn_obs = sett[0]
-                num_static_obs = sett[1]
-                roslaunch_command = f""" roslaunch navpred-data-recorder start_arena_navpred.launch map_file:={map_name} """
+                sim_id = "sim-" + str(uuid())
+                num_dyn_obs = 30
+                # num_static_obs = sett[1]
+                roslaunch_command = f""" roslaunch navpred-data-recorder start_arena_navpred.launch map_file:={map_name} num_episodes:={num_episodes} num_dynamic:={num_dyn_obs} obs_max_radius:={obs_radius[1]} obs_min_radius:={obs_radius[0]} obs_max_lin_vel:={dyn_obs_velocity[1]} obs_min_lin_vel:={dyn_obs_velocity[0]} local_planner:={planner} sim_id:={sim_id}"""
+                                         
                 os.system(roslaunch_command)
+                get_metrics_command = f"""python3 ../../data-recorder/get_metrics.py --map_name {map_name} --sim_id {sim_id}"""
+                os.system(get_metrics_command)
 
 
     # Copy new generated map to local maps folder

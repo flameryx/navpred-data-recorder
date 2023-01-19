@@ -7,6 +7,7 @@ from nav_msgs.msg import Odometry
 from std_msgs.msg import Int16, Bool
 from std_srvs.srv import Empty, EmptyRequest, EmptyResponse
 from geometry_msgs.msg import PoseStamped
+import subprocess
 import os
 import sys
 import inspect
@@ -18,6 +19,7 @@ sys.path.insert(0, parentdir)
 from task_generator_navpred.utils import Utils
 from task_generator_navpred.constants import Constants, TaskMode
 
+# from task_generator_navpred.tasks.random import RandomTask
 from task_generator_navpred.tasks.utils import get_predefined_task
 from task_generator_navpred.environments.environment_factory import EnvironmentFactory
 from task_generator_navpred.environments.gazebo_environment import GazeboEnvironment
@@ -55,20 +57,19 @@ class TaskGenerator:
         self.task = get_predefined_task("", self.task_mode, self.env_wrapper)
         self.task.set_robot_names_param()
 
-        self.number_of_resets = 0
+        # self.number_of_resets = 0
 
         self.srv_start_model_visualization = rospy.ServiceProxy("start_model_visualization", Empty)
         self.srv_start_model_visualization(EmptyRequest())
         
-        self.reset_task()
-
-        rospy.sleep(2)
+        # self.reset_task()
 
         self.srv_setup_finished = rospy.ServiceProxy("task_generator_setup_finished", Empty)
         self.srv_setup_finished(EmptyRequest())
+        
+        rospy.sleep(10)
 
         self.number_of_resets = 0
-
         self.reset_task()
 
         ## Timers
@@ -82,6 +83,11 @@ class TaskGenerator:
     def reset_task(self):
         self.start_time = rospy.get_time()
 
+        num_episodes = rospy.get_param("num_episodes")
+        if self.number_of_resets >= num_episodes:
+            self.shutdown_sim()
+            return
+        
         rospy.loginfo("=============")
         rospy.loginfo("Task Reseted!")
         rospy.loginfo("=============")
@@ -96,6 +102,19 @@ class TaskGenerator:
         self.env_wrapper.after_reset_task()
 
         self.number_of_resets += 1
+        
+
+
+            
+    def shutdown_sim(self):
+        rospy.loginfo("Shutting down. All tasks completed")
+
+        self.pub_scenario_finished.publish(Bool(True))
+        rospy.signal_shutdown("Finished all episodes of the current scenario")
+        
+        subprocess.call(["killall","-9","rosmaster"]) # apt-get install psmisc necessary
+        sys.exit()
+        
 
     def reset_task_srv_callback(self, req):
         rospy.logdebug("Task Generator received task-reset request!")
@@ -108,10 +127,7 @@ class TaskGenerator:
         if not is_end or self.task_mode != TaskMode.SCENARIO:
             return
 
-        rospy.loginfo("Shutting down. All tasks completed")
-
-        self.pub_scenario_finished.publish(Bool(True))
-        rospy.signal_shutdown("Finished all episodes of the current scenario")
+        self.shutdown_sim()
 
 
 if __name__ == "__main__":

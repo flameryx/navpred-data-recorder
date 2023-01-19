@@ -4,12 +4,17 @@
   <env name="ARENA_TYPE" value="deployment" />
 
   <arg name="pipeline" default="original" />
+  <arg name="num_episodes" default="15" />
+  <arg name="sim_id" />
+  
   <param name="navpred_pipeline" value="$(arg pipeline)" />
+  <param name="num_episodes" value="$(arg num_episodes)" />
+  <param name="sim_id" value="$(arg sim_id)" />
 
   <!-- ___________ ARGS ___________ -->
   <!-- You can launch a single robot and his local_planner with arguments -->
   <arg name="model" default="burger" doc="robot model type [burger, jackal, ridgeback, agvota, rto, ...]" />
-  <arg name="local_planner" default="teb" doc="local planner type [teb, dwa, mpc, rlca, arena, rosnav]" />
+  <arg name="local_planner" default="dwa" doc="local planner type [teb, dwa, mpc, rlca, arena, rosnav]" />
   <arg name="environment" default="flatland_navpred" doc="[flatland, gazebo, flatland_navpred]" />
   
   <env name="ENVIRONMENT" value="$(arg environment)" />
@@ -53,6 +58,10 @@
   <param name="show_viz" value="$(arg show_rviz)"/>
 
   <rosparam command="load" file="$(find arena_bringup)/params/flatland.yaml" />
+  <!-- <param name="step_size" value="0.1" />
+  <param name="update_rate" value="10" />
+  <param name="viz_pub_rate" value="30" /> -->
+  
 
   <rosparam command="load" file="$(find arena-simulation-setup)/robot/$(arg model)/model_params.yaml" /> 
   <!-- <param name="robot_yaml_path" value="$(find arena-simulation-setup)/robot/$(arg model)/$(arg model).model.yaml" /> -->
@@ -114,6 +123,10 @@
     <arg name="odom_frame_id" value="$(arg odom_frame_id)" />
   </include>
 
+  <arg name="recorder_type" value="MainRecorder" />
+  <node pkg="navpred-data-recorder" type="data_recorder_node.py" name="data_recorder_node" if="$(eval arg('record_data'))" args="$(arg recorder_type)"/>
+
+
   <include file="$(find navpred-data-recorder)/task_generator_navpred.launch">
     <arg name="scenario_json_path" value="$(find task-generator)/scenarios/$(arg scenario_file)" />
     <arg name="auto_reset" value="$(arg auto_reset)" />
@@ -137,7 +150,7 @@
   <node type="visualize_robot_model.py" pkg="rviz_utils" name="visualize_robot_model" output="screen" />
 
   <arg name="num_dynamic" default="3" />
-  <arg name="num_static" default="3" />
+  <arg name="num_static" default="0" />
   <arg name="obs_max_radius" default="1.2" />
   <arg name="obs_min_radius" default="0.3" />
   <arg name="obs_max_lin_vel" default="2.0" />
@@ -155,6 +168,5 @@
   <param name="obstacles/min_ang_vel" value="$(arg obs_min_ang_vel)" />
   <param name="obstacles/initialized" value="False" />
 
-  <arg name="recorder_type" value="MainRecorder" />
-  <node pkg="navpred-data-recorder" type="data_recorder_node.py" name="data_recorder_node" if="$(eval arg('record_data'))" args="$(arg recorder_type)"/>
+  
 </launch>
