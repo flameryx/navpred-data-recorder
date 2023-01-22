@@ -118,15 +118,10 @@ class MainRecorder:
         os.mkdir(self.robots_dir)
         os.mkdir(self.obstacles_dir)
         
-        # Subscribers
-        # self.done_reason_sub = rospy.Subscriber("/done_reason", String, self.done_reason_callback)
-        self.clock_sub = rospy.Subscriber("/clock", Clock, self.clock_callback)
-        self.scenario_reset_sub = rospy.Subscriber("/scenario_reset", Int16, self.scenario_reset_callback)
-        
         # Data Files
         self.write_params()
         # self.write_data("done_reason", ["episode", "done_reason"], mode="w")
-        self.write_data("num_obstacles", ["episode", "dynamic_obs", "static_obs"], mode="w")
+        # self.write_data("num_obstacles", ["episode", "dynamic_obs", "static_obs"], mode="w")
         self.write_data("episode", ["time", "episode"], mode="w")
         
         # Class Variables
@@ -135,6 +130,11 @@ class MainRecorder:
         self.current_episode = 0
         self.config = self.read_config()
         self.current_time = 0.0
+        
+        # Subscribers
+        # self.done_reason_sub = rospy.Subscriber("/done_reason", String, self.done_reason_callback)
+        self.clock_sub = rospy.Subscriber("/clock", Clock, self.clock_callback)
+        self.scenario_reset_sub = rospy.Subscriber("/scenario_reset", Int16, self.scenario_reset_callback)
 
     def read_config(self):
         with open(self.dir + "/data_recorder_config.yaml") as file:
@@ -152,9 +152,9 @@ class MainRecorder:
         
         # self.write_data("done_reason", [self.current_episode, self.done_reason])
         
-        num_dynamic_obs = rospy.get_param("/obstacles/num_dynamic")
-        num_static_obs = rospy.get_param("/obstacles/num_static")
-        self.write_data("num_obstacles", [self.current_episode, num_dynamic_obs, num_static_obs])
+        # num_dynamic_obs = rospy.get_param("/obstacles/num_dynamic")
+        # num_static_obs = rospy.get_param("/obstacles/num_static")
+        # self.write_data("num_obstacles", [self.current_episode, num_dynamic_obs, num_static_obs])
         self.write_obs_data()
 
 
@@ -266,7 +266,10 @@ class MainRecorder:
         with open(f"{self.results_dir}/params.yaml", "w") as file:
             yaml.dump({
                 "map_file": rospy.get_param("/map_file", ""),
-                "scenario_file": rospy.get_param("/scenario_file", ""),
+                # "scenario_file": rospy.get_param("/scenario_file", ""),
+                "timeout_threshold": rospy.get_param("/timeout", "") * 10e9,
+                "num_dynamic_obs": rospy.get_param("/obstacles/num_dynamic", ""),
+                "num_static_obs": rospy.get_param("/obstacles/num_static")
             }, file)
 
 
@@ -323,11 +326,10 @@ class RobotRecorder:
 
         self.config = self.read_config()
         self.current_episode = 0
+        self.current_time = 0.0
 
         self.clock_sub = rospy.Subscriber("/clock", Clock, self.clock_callback)
         self.scenario_reset_sub = rospy.Subscriber("/scenario_reset", Int16, self.scenario_reset_callback)
-
-        self.current_time = 0.0
 
         print(rosparam.print_params("", "/"))
         

@@ -32,11 +32,29 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--timeout",
+    action="store",
+    dest="timeout",
+    default=30,
+    help="After how many seconds should the episode timeout.",
+    required=False,
+)
+
+parser.add_argument(
     "--num_episodes",
     action="store",
     dest="num_episodes",
-    default=1,
+    default=15,
     help="How many episodes do you want to run on each simulation",
+    required=False,
+)
+
+parser.add_argument(
+    "--viz",
+    action="store",
+    dest="viz",
+    default="flatland",
+    help="How do you want to see the simulations? [flatland, rivz, none]",
     required=False,
 )
 
@@ -76,6 +94,15 @@ num_episodes = int(args.num_episodes)
 maps_path = args.maps_path
 records_path = args.records_path
 del_records = bool(args.del_records)
+viz = args.viz
+
+# Changing the update_rate also reduces the real time timeout.
+# The simulation time scales linearly with the update rate. 
+# The maximal update rate one can set to increase the speed of the simulation, is dependent on the hardware setup
+# At some point the CPU becomes a bottle neck, and increasing the update_rate further would have no effect
+speed_multiplier = 20
+update_rate = 10 * speed_multiplier
+timeout = int(args.timeout) * speed_multiplier
     
 #---------------------------------------------------
 # Create necessary directories #--------------------
@@ -186,10 +213,10 @@ for i in range(num_maps):
                 sim_id = "sim-" + str(uuid())
                 num_dyn_obs = sett
                 # num_static_obs = sett[1]
-                roslaunch_command = f""" roslaunch navpred-data-recorder start_arena_navpred.launch map_file:={map_name} num_episodes:={num_episodes} num_dynamic:={num_dyn_obs} obs_max_radius:={obs_radius[1]} obs_min_radius:={obs_radius[0]} obs_max_lin_vel:={dyn_obs_velocity[1]} obs_min_lin_vel:={dyn_obs_velocity[0]} local_planner:={planner} sim_id:={sim_id}"""
+                roslaunch_command = f""" roslaunch navpred-data-recorder start_arena_navpred.launch map_file:={map_name} num_episodes:={num_episodes} num_dynamic:={num_dyn_obs} obs_max_radius:={obs_radius[1]} obs_min_radius:={obs_radius[0]} obs_max_lin_vel:={dyn_obs_velocity[1]} obs_min_lin_vel:={dyn_obs_velocity[0]} local_planner:={planner} sim_id:={sim_id} timeout:={timeout} update_rate:={update_rate} visualization:={viz}"""
                                          
                 os.system(roslaunch_command)
-                get_metrics_command = f"""python3 ../../data-recorder/get_metrics.py --map_name {map_name} --sim_id {sim_id}"""
+                get_metrics_command = f"""python3 ../../data-recorder/get_metrics.py --map_name {map_name} --sim_id {sim_id} --timeout {timeout}"""
                 os.system(get_metrics_command)
 
 

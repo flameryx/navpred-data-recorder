@@ -48,6 +48,15 @@ def parse_args():
     help="ID of the simulation",
     required=True,
     )
+    
+    parser.add_argument(
+    "--timeout",
+    action="store",
+    dest="timeout",
+    default="180",
+    help="After how many seconds is it considered a timeout",
+    required=True,
+    )
 
     return parser.parse_args()
 
@@ -70,8 +79,10 @@ class Config:
 
 
 class Metrics:
-    def __init__(self, dir, map_name, sim_id, pipeline):
+    def __init__(self, dir, map_name, sim_id, pipeline, timeout):
         self.dir = Path(__file__).resolve().parent.parent / "pipelines" / pipeline / "sims_data_records" / map_name / sim_id
+        
+        self.timeout_threshhold = int(timeout) * 10e9
 
         episode = pd.read_csv(self.dir / "episode.csv", converters={
             "data": lambda val: 0 if len(val) <= 0 else int(val) 
@@ -201,7 +212,7 @@ class Metrics:
         return total_yaw / path_length
 
     def get_success(self, time, collisions):
-        if time >= Config.TIMEOUT_TRESHOLD:
+        if time >= self.timeout_threshhold:
             return DoneReason.TIMEOUT
 
         if collisions >= Config.MAX_COLLISIONS:
@@ -410,4 +421,4 @@ class Metrics:
 if __name__ == "__main__":
     arguments = parse_args()
 
-    Metrics(arguments.dir, arguments.map_name, arguments.sim_id, arguments.pipeline)
+    Metrics(arguments.dir, arguments.map_name, arguments.sim_id, arguments.pipeline, arguments.timeout)

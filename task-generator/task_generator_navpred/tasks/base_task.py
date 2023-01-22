@@ -82,7 +82,9 @@ class BaseTask():
         self.clock = clock
 
     def is_done(self):
-        if self.clock.clock.secs - self.last_reset_time > Constants.TIMEOUT:
+        timeout = rospy.get_param("timeout")
+        
+        if self.clock.clock.secs - self.last_reset_time > timeout:
             return True
         
         for manager in self.robot_managers:

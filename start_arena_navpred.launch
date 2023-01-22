@@ -6,10 +6,13 @@
   <arg name="pipeline" default="original" />
   <arg name="num_episodes" default="15" />
   <arg name="sim_id" />
+  <arg name="timeout" default="180"/>
+  <arg name="update_rate" />
   
   <param name="navpred_pipeline" value="$(arg pipeline)" />
   <param name="num_episodes" value="$(arg num_episodes)" />
   <param name="sim_id" value="$(arg sim_id)" />
+  <param name="timeout" value="$(arg timeout)" />
 
   <!-- ___________ ARGS ___________ -->
   <!-- You can launch a single robot and his local_planner with arguments -->
@@ -40,7 +43,7 @@
   
   <arg name="auto_reset" default="true"/>
 
-  <arg name="scenario_file" default="test_scenario.json" />
+  <!-- <arg name="scenario_file" default="test_scenario.json" /> -->
   <arg name="map_file" default="map_empty" doc="[map1, floor, indoor, indoor_map1, map_small, map_empty]" />
   <arg name="map_path" default="$(find navpred-data-recorder)/pipelines/$(arg pipeline)/maps/$(arg map_file)/map.yaml" />
     <!-- <arg name="map_path" default="$(find arena-simulation-setup)/maps/$(arg map_file)/map.yaml" /> -->
@@ -84,22 +87,16 @@
   <param name="robot_name" value="$(arg model)" />
 
   <!-- data recorder -->
-  <param name="scenario_file"  value="$(arg scenario_file)"/>
+  <!-- <param name="scenario_file"  value="$(arg scenario_file)"/> -->
 
   <!-- use simulator-->
 
   <!-- Flatland -->
-  <include file="$(find arena_bringup)/launch/testing/simulators/flatland.launch" if="$(eval arg('environment') == 'flatland')">
+  <include file="$(find navpred-data-recorder)/flatland_navpred.launch" if="$(eval arg('environment') == 'flatland_navpred')">
     <arg name="visualization" default="$(arg visualization)" />
     <arg name="rviz_file" value="$(arg rviz_file)" />
     <arg name="model" value="$(arg model)" />
-  </include>
-
-    <!-- Flatland -->
-  <include file="$(find arena_bringup)/launch/testing/simulators/flatland.launch" if="$(eval arg('environment') == 'flatland_navpred')">
-    <arg name="visualization" default="$(arg visualization)" />
-    <arg name="rviz_file" value="$(arg rviz_file)" />
-    <arg name="model" value="$(arg model)" />
+    <arg name="update_rate" value="$(arg update_rate)" />
   </include>
 
   <!-- Gazebo -->
@@ -128,7 +125,7 @@
 
 
   <include file="$(find navpred-data-recorder)/task_generator_navpred.launch">
-    <arg name="scenario_json_path" value="$(find task-generator)/scenarios/$(arg scenario_file)" />
+    <!-- <arg name="scenario_json_path" value="$(find task-generator)/scenarios/$(arg scenario_file)" /> -->
     <arg name="auto_reset" value="$(arg auto_reset)" />
   </include>
 
