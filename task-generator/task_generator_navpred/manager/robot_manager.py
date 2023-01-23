@@ -191,21 +191,23 @@ class RobotManager:
         self.process.start()
 
         # Overwrite default move base params
+        base_frame = rospy.get_param(os.path.join(self.namespace, "robot_base_frame"))
+        sensor_frame = rospy.get_param(os.path.join(self.namespace, "robot_sensor_frame"))
         rospy.set_param(
             os.path.join(self.namespace, "move_base", "global_costmap", "robot_base_frame"),
-            (self.namespace).replace("/", "") + "_base_footprint"
+            self.namespace.replace("/", "") + "/" + base_frame
         )
         rospy.set_param(
             os.path.join(self.namespace, "move_base", "local_costmap", "robot_base_frame"),
-            (self.namespace).replace("/", "") + "_base_footprint"
+            self.namespace.replace("/", "") + "/" + base_frame
         )
         rospy.set_param(
             os.path.join(self.namespace, "move_base", "local_costmap", "scan", "sensor_frame"),
-            (self.namespace).replace("/", "") + "_laser_link"
+            self.namespace.replace("/", "") + "/" + sensor_frame
         )
         rospy.set_param(
             os.path.join(self.namespace, "move_base", "global_costmap", "scan", "sensor_frame"),
-            (self.namespace).replace("/", "") + "_laser_link"
+            self.namespace.replace("/", "") + "/" + base_frame
         )
 
     def robot_pos_callback(self, data):
