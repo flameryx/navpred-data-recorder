@@ -418,7 +418,9 @@ class FlatlandNavPredEnvironment(BaseEnvironment):
             to the center is chosen randomly and lies in the range
             defined in `constants`. 
         """
-        type = random.choice(["circle", "polygon"])
+        
+        # type = random.choice(["circle", "polygon"])
+        type = "circle"
 
         if type == "circle":
             radius = random.uniform(min_radius, max_radius)
