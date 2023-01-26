@@ -9,7 +9,7 @@ from pathlib import Path
 from argparse import ArgumentParser
 import random
 import cv2
-from data_preperation_script import Transformation   
+from data_preparation_script import Transformation   
 # Create and parse cli arguments #------------------
 
 parser = ArgumentParser()
