@@ -515,7 +515,7 @@ if __name__ == "__main__":
         #print(mapsdata)
 
         # write to file
-        csvPath = args.folders_path + '/map_complexity.csv'
+        csvPath = args.folders_path + '/complexity.csv'
         write2File(csvPath, mapsdata)
 
     else:
