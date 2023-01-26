@@ -68,11 +68,13 @@ class Distance:
         if not normDist == None:
             normDist = float("{0:.1f}".format(normDist))
         else:
-            normDist = []
+            normDist = 0
         if not var == None:
             var = float("{0:.5f}".format(var))
         else:
-            var = []
+            var = 1
+        if average == None:
+            average = 0
         return normDist, var, minimum, average
 
     def find_boxes(self, cnts, width, image, tail):

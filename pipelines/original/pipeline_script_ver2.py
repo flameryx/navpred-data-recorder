@@ -9,7 +9,7 @@ from pathlib import Path
 from argparse import ArgumentParser
 import random
 import cv2
-
+from data_preperation_script import Transformation   
 # Create and parse cli arguments #------------------
 
 parser = ArgumentParser()
@@ -156,7 +156,7 @@ for i in range(num_maps):
     if mapSize == 90:
         num_dyn_obs = random.choice([0,5,10,15])
     
-    map_name = str(uuid())
+    map_name = "map-" + str(uuid())    
     width = mapSize
     height = mapSize
     map_type = "indoor"
@@ -170,6 +170,10 @@ for i in range(num_maps):
     generate_maps_command = f"python3 cliMapGenerator.py --map_name {map_name} --width {width} --height {height} --map_type {map_type} --num_maps {num_maps_to_generate} --map_res {map_res} --save_path {maps_path} --iterations {iterations} --num_obstacles {num_obstacles} --obstacle_size {obstacle_size} --corridor_width {corridor_width}"
     os.system(generate_maps_command)
     
+    this_map_folder = f"{maps_path}/{map_name}"
+                       
+    get_complexity_command = f"python3 world_complexity.py --image_path {this_map_folder}/{map_name}.png --yaml_path {this_map_folder}/map.yaml --dest_path {this_map_folder}"
+    os.system(get_complexity_command)
     
     # Add map generation parameters to map folder ------------
     f = open(os.path.join(local_maps, map_name, "generation_params.yaml"), "w")
@@ -195,7 +199,7 @@ for i in range(num_maps):
     # Run simulations and record data #-----------------------
     os.mkdir(os.path.join(local_records, map_name))
 
-    planner = random.choice(["mpc","dwa"])
+    planner = random.choice(["dwa","mpc"])
     robot = random.choice(["burger"])    
     dyn_obs_velocity = (0.1, 2.0)
     obs_radius = (0.2, 1.5)
@@ -216,7 +220,14 @@ for i in range(num_maps):
         
     #---------------------------------------------------------
     # Data cleaning, analysis and map complexity calculation #
-    # TODO: New createAverage.py script for new recorded data structure
-    # os.system("python3 createAverage.py --csv_name /{}/{}*.csv".format(map_name,map_name))
+   
+    #python3 data_preperation_script.py --record_path sims_data_records/map-4a7b7bc3-2d16-4450-8f05-dd2f5298c31e --map_path maps/map-4a7b7bc3-2d16-4450-8f05-dd2f5298c31e
+
+    #os.system("python3 data_preperation_script.py --record_path sims_data_records/{} --map_path maps/{}".format(map_name,map_name))
+
+    Transformation.readData(
+        "sims_data_records/{}".format(map_name), 
+        "maps/{}".format(map_name)
+    )
     
     #----------------------------------------------------------
