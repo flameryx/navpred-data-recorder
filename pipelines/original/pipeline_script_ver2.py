@@ -201,7 +201,7 @@ for i in range(num_maps):
 
     planner = random.choice(["dwa"])
     robot = random.choice(["burger"])    
-    dyn_obs_velocity = (0.1, 1.5)
+    dyn_obs_velocity = (0.1, 1.0)
     obs_radius = (0.2, 1.2)
 
     sim_id = "sim-" + str(uuid())
