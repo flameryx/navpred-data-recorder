@@ -148,13 +148,13 @@ for i in range(num_maps):
     mapSize = random.choice([50,70,90])
 
     if mapSize == 50:
-        num_dyn_obs = random.choice([0,3,6,9])
+        num_dyn_obs = random.choice([0,2,4,6])
 
     if mapSize == 70:
-        num_dyn_obs = random.choice([0,4,8,12])
+        num_dyn_obs = random.choice([0,3,6,9])
 
     if mapSize == 90:
-        num_dyn_obs = random.choice([0,5,10,15])
+        num_dyn_obs = random.choice([0,4,8,12])
     
     map_name = "map-" + str(uuid())    
     width = mapSize
@@ -162,7 +162,7 @@ for i in range(num_maps):
     map_type = "indoor"
     num_maps_to_generate = 1
     map_res = 0.5
-    iterations = random.choice([5,10,15,30,45,70]) 
+    iterations = random.choice([15,30,45,70]) 
     num_obstacles = 45
     obstacle_size = 10
     corridor_width = random.choice([3,4,5])
@@ -199,10 +199,10 @@ for i in range(num_maps):
     # Run simulations and record data #-----------------------
     os.mkdir(os.path.join(local_records, map_name))
 
-    planner = random.choice(["dwa","mpc"])
+    planner = random.choice(["dwa"])
     robot = random.choice(["burger"])    
-    dyn_obs_velocity = (0.1, 2.0)
-    obs_radius = (0.2, 1.5)
+    dyn_obs_velocity = (1.5, 1.5)
+    obs_radius = (1.2, 1.2)
 
     sim_id = "sim-" + str(uuid())
     roslaunch_command = f""" roslaunch navpred-data-recorder start_arena_navpred.launch map_file:={map_name} num_episodes:={num_episodes} num_dynamic:={num_dyn_obs} obs_max_radius:={obs_radius[1]} obs_min_radius:={obs_radius[0]} obs_max_lin_vel:={dyn_obs_velocity[1]} obs_min_lin_vel:={dyn_obs_velocity[0]} local_planner:={planner} sim_id:={sim_id} timeout:={timeout} update_rate:={update_rate} visualization:={viz}"""
@@ -211,19 +211,9 @@ for i in range(num_maps):
     get_metrics_command = f"""python3 ../../data-recorder/get_metrics.py --map_name {map_name} --sim_id {sim_id} --timeout {timeout}"""
     os.system(get_metrics_command)
 
-
-    # Copy new generated map to local maps folder
-    # os.system(f"mv {maps_path}/{map_name} maps")
-    
-    # Copy recorded data for the new map to local sims_data_records folder
-    # os.system(f"mv {records_path}/{map_name} sims_data_records")
         
     #---------------------------------------------------------
     # Data cleaning, analysis and map complexity calculation #
-   
-    #python3 data_preperation_script.py --record_path sims_data_records/map-4a7b7bc3-2d16-4450-8f05-dd2f5298c31e --map_path maps/map-4a7b7bc3-2d16-4450-8f05-dd2f5298c31e
-
-    #os.system("python3 data_preperation_script.py --record_path sims_data_records/{} --map_path maps/{}".format(map_name,map_name))
 
     Transformation.readData(
         "sims_data_records/{}".format(map_name), 
