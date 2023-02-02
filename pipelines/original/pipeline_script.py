@@ -9,6 +9,7 @@ from pathlib import Path
 from argparse import ArgumentParser
 from random import randint, choice
 import cv2
+from data_preparation_script import Transformation   
 
 # Create and parse cli arguments #------------------
 
@@ -201,10 +202,10 @@ for i in range(num_maps):
     # Run simulations and record data #-----------------------
     os.mkdir(os.path.join(local_records, map_name))
 
-    local_planners = ["dwa", "teb", "mpc", "rosnav"]
+    local_planners = ["dwa", "aio", "teb", "crowdnav", "rlca"]
     robot_models = ["burger"]    
-    dyn_obs_velocity = (0.1, 2.0)
-    obs_radius = (0.2, 1.5)
+    dyn_obs_velocity = (0.1, 1.0)
+    obs_radius = (0.2, 1.0)
     # static_obs_vertices = (3, 8)
     obstacles_settings = []
     num_dyn_obs = (0, 15)
@@ -226,15 +227,7 @@ for i in range(num_maps):
                 os.system(get_metrics_command)
 
 
-    # Copy new generated map to local maps folder
-    # os.system(f"mv {maps_path}/{map_name} maps")
-    
-    # Copy recorded data for the new map to local sims_data_records folder
-    # os.system(f"mv {records_path}/{map_name} sims_data_records")
-        
-    #---------------------------------------------------------
-    # Data cleaning, analysis and map complexity calculation #
-    # TODO: New createAverage.py script for new recorded data structure
-    # os.system("python3 createAverage.py --csv_name /{}/{}*.csv".format(map_name,map_name))
-    
-    #----------------------------------------------------------
+                Transformation.readData(
+                    "sims_data_records/{}".format(map_name), 
+                    "maps/{}".format(map_name)
+                )

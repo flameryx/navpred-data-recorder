@@ -203,7 +203,7 @@ for i in range(num_maps):
     # Planners with planning issues (dumb planners) : ["mpc", "arena", "sarl"]
     # Not working: ["cadrl", "rosnav"]
 
-    planner = random.choice(["dwa"])
+    planner = random.choice(["aio"])
     robot = random.choice(["burger"])    
     dyn_obs_velocity = (0.1, 1.0)
     obs_radius = (0.2, 1.0)
