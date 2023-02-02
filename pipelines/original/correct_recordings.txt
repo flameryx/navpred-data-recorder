@@ -1,1 +1,1 @@
-map_name/sim_id
+map_name, sim_id
