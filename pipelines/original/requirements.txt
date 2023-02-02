@@ -5,3 +5,8 @@ tqdm
 imutils
 uuid
 numpy
+pandas
+Pillow
+scipy
+rospkg
+netifaces
