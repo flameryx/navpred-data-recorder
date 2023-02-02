@@ -198,6 +198,10 @@ for i in range(num_maps):
     #---------------------------------------------------------
     # Run simulations and record data #-----------------------
     os.mkdir(os.path.join(local_records, map_name))
+    
+    # Working planners: ["dwa", "aio", "teb", "crowdnav", "rlca"]
+    # Planners with planning issues (dumb planners) : ["mpc", "arena", "sarl"]
+    # Not working: ["cadrl", "rosnav"]
 
     planner = random.choice(["dwa"])
     robot = random.choice(["burger"])    
