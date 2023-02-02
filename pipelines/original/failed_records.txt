@@ -1,0 +1,1 @@
+fail_reason,map_name,sim_id

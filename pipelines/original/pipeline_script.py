@@ -45,7 +45,7 @@ parser.add_argument(
     "--num_episodes",
     action="store",
     dest="num_episodes",
-    default=15,
+    default=30,
     help="How many episodes do you want to run on each simulation",
     required=False,
 )

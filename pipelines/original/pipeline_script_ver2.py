@@ -10,6 +10,9 @@ from argparse import ArgumentParser
 import random
 import cv2
 from data_preparation_script import Transformation   
+
+
+
 # Create and parse cli arguments #------------------
 
 parser = ArgumentParser()
@@ -44,7 +47,7 @@ parser.add_argument(
     "--num_episodes",
     action="store",
     dest="num_episodes",
-    default=15,
+    default=30,
     help="How many episodes do you want to run on each simulation",
     required=False,
 )
@@ -208,25 +211,51 @@ for i in range(num_maps):
     # Ricardo: ["dwa", "aio", "teb", "crowdnav", "rlca"]
     # Bo: pending...
 
-    planner = random.choice(["dwa", "aio", "teb", "crowdnav", "rlca"])
+    planner = random.choice(["dwa"])
     robot = random.choice(["burger"])    
     dyn_obs_velocity = (0.1, 1.0)
-    obs_radius = (0.2, 1.0)
+    obs_radius = (0.1, 1.0)
 
     sim_id = "sim-" + str(uuid())
-    roslaunch_command = f""" roslaunch navpred-data-recorder start_arena_navpred.launch map_file:={map_name} num_episodes:={num_episodes} num_dynamic:={num_dyn_obs} obs_max_radius:={obs_radius[1]} obs_min_radius:={obs_radius[0]} obs_max_lin_vel:={dyn_obs_velocity[1]} obs_min_lin_vel:={dyn_obs_velocity[0]} local_planner:={planner} sim_id:={sim_id} timeout:={timeout} update_rate:={update_rate} visualization:={viz}"""
+    roslaunch_command = f"""roslaunch navpred-data-recorder start_arena_navpred.launch map_file:={map_name} num_episodes:={num_episodes} num_dynamic:={num_dyn_obs} obs_max_radius:={obs_radius[1]} obs_min_radius:={obs_radius[0]} obs_max_lin_vel:={dyn_obs_velocity[1]} obs_min_lin_vel:={dyn_obs_velocity[0]} local_planner:={planner} sim_id:={sim_id} timeout:={timeout} update_rate:={update_rate} visualization:={viz}"""
                                 
     os.system(roslaunch_command)
     get_metrics_command = f"""python3 ../../data-recorder/get_metrics.py --map_name {map_name} --sim_id {sim_id} --timeout {timeout}"""
     os.system(get_metrics_command)
+    
+    metrics_created = True
+    
+    sim_dir = os.path.join(local_records, map_name, sim_id)
+    robots_path = os.path.join(sim_dir, "robots")
+    
 
+    for robot in os.listdir(robots_path):
+        metrics_path = os.path.join(robots_path, robot, "metrics.csv")
+        
+        if not os.path.isfile(metrics_path):
+            metrics_created = False
+            break
+            
+    if not metrics_created:
+        with open("failed_records.txt", 'a') as f:
+            f.write(f'get_metrics.py,{map_name},{sim_id}\n')
+        continue
         
     #---------------------------------------------------------
     # Data cleaning, analysis and map complexity calculation #
 
-    Transformation.readData(
-        "sims_data_records/{}".format(map_name), 
-        "maps/{}".format(map_name)
-    )
-    
+    try:
+        Transformation.readData(
+            "sims_data_records/{}".format(map_name), 
+            "maps/{}".format(map_name)
+        )
+    except:
+        with open("failed_records.txt", 'a') as f:
+            f.write(f'data_preparation_script.py,{map_name},{sim_id}\n')
+        continue
     #----------------------------------------------------------
+
+    with open("correct_records.txt", 'a') as f:
+        f.write(f'{map_name},{sim_id}\n')
+        
+    

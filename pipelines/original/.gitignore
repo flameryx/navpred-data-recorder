@@ -2,5 +2,5 @@ maps/
 sims_data_records/
 dnn_input_data/
 __pycache__/
-# correct_recordings.txt/
-# failed_recordings.txt/
+# correct_records.txt/
+# failed_records.txt/
