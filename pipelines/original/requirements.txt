@@ -10,3 +10,4 @@ Pillow
 scipy
 rospkg
 netifaces
+mpi4py

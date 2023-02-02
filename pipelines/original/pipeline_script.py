@@ -202,7 +202,12 @@ for i in range(num_maps):
     # Run simulations and record data #-----------------------
     os.mkdir(os.path.join(local_records, map_name))
 
-    local_planners = ["dwa", "aio", "teb", "crowdnav", "rlca"]
+    # Alex: ["dwa", "rlca", "crowdnav"]
+    # Bassel: ["dwa", "aio", "teb", "crowdnav", "rlca"] 
+    # Ricardo: ["dwa", "aio", "teb", "crowdnav", "rlca"]
+    # Bo: pending...
+
+    local_planners = ["cadrl"]
     robot_models = ["burger"]    
     dyn_obs_velocity = (0.1, 1.0)
     obs_radius = (0.2, 1.0)
