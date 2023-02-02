@@ -225,9 +225,3 @@ for i in range(num_maps):
                 
                 get_metrics_command = f"""python3 ../../data-recorder/get_metrics.py --map_name {map_name} --sim_id {sim_id} --timeout {timeout}"""
                 os.system(get_metrics_command)
-
-
-                Transformation.readData(
-                    "sims_data_records/{}".format(map_name), 
-                    "maps/{}".format(map_name)
-                )
