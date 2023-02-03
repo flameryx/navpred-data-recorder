@@ -232,7 +232,7 @@ for i in range(num_maps):
         episodes = episodes_csv["episode"].tolist()
         
         for ep_num in range(0, 30):
-            if str(ep_num) not in episodes:
+            if ep_num not in episodes:
                 sim_finished = False
                 break
         
