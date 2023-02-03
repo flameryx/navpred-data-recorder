@@ -1,2 +1,1 @@
 map_name,sim_id
-map-ec356a49-3852-4329-8401-9949afd7f557,sim-6a1d7271-768c-4d62-a38d-cadc940efa48

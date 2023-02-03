@@ -81,7 +81,7 @@ with open("failed_records.txt") as file:
             if os.path.exists(records_path):
                 shutil.move(records_path, f"failed_records/sims_data_records/{map_id}")
                 
-            with open(f"{dnn_input_path}/{sim_id}/params.yaml", "a") as file:
+            with open(f"failed_records/dnn_input_data/{map_id}/{sim_id}/params.yaml", "a") as file:
                 yaml.dump(f"failed_reason: {failed_reason}", file)
 
 with open("failed_records.txt", 'w') as f:
