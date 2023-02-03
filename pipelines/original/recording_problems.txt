@@ -1,0 +1,9 @@
+- MISSING EPISODES
+Too often episodes are missing. This could be caused, because the robot start position and the goal position are so close to each other
+that the robot reaches it before the data recorder can record the simulation. Since the dat recorder is activated on the ros clock 
+callback, if the robot reaches the goal before the clock callback is activated, then nothing will be recorded and we will have no data 
+for that specific episode.
+
+- DWA ERROR 
+Sometimes an error occurs that messes up the whole planning of the path. It has something to do with base_footprint.
+When this happens, the planner won't work at all for any of the episodes.
