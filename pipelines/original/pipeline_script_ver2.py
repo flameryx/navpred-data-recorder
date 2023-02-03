@@ -220,8 +220,6 @@ for i in range(num_maps):
     roslaunch_command = f"""roslaunch navpred-data-recorder start_arena_navpred.launch map_file:={map_name} num_episodes:={num_episodes} num_dynamic:={num_dyn_obs} obs_max_radius:={obs_radius[1]} obs_min_radius:={obs_radius[0]} obs_max_lin_vel:={dyn_obs_velocity[1]} obs_min_lin_vel:={dyn_obs_velocity[0]} local_planner:={planner} sim_id:={sim_id} timeout:={timeout} update_rate:={update_rate} visualization:={viz}"""
     os.system(roslaunch_command)
     
-    os.system("echo y | rosclean purge")
-
         
     # Check number of episodes -----------------------------             
     sim_finished = True
