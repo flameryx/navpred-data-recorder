@@ -2,10 +2,9 @@ import shutil
 import os
 from pathlib import Path
 
-# Create collect_records folder if it does not exist
 dirname = os.path.dirname(__file__)
 
-# Create local maps folder if it does not exist
+# Create correct_records folder if it does not exist
 correct_records = Path(dirname) / "correct_records"
 correct_records.mkdir(parents=True, exist_ok=True)
 
@@ -45,16 +44,17 @@ averages_path = "dnn_input_data/CombinedAverages.csv"
 new_averages_path = "correct_records/dnn_input_data/CombinedAverages.csv"
 
 if not os.path.exists(new_averages_path):
-    if os.path.exists(averages_path) :
+    if os.path.exists(averages_path):
         shutil.move(averages_path, "correct_records/dnn_input_data/CombinedAverages.csv")
 else:
-    f_old = open("dnn_input_data/CombinedAverages.csv")
-    f_new = open("correct_records/dnn_input_data/CombinedAverages.csv", 'a')
-    
-    for idx, line in enumerate(f_old):
-        if idx > 0:
-            f_new.write(line)
-    os.remove("dnn_input_data/CombinedAverages.csv")
+    if os.path.exists(averages_path):
+        f_old = open("dnn_input_data/CombinedAverages.csv")
+        f_new = open("correct_records/dnn_input_data/CombinedAverages.csv", 'a')
+        
+        for idx, line in enumerate(f_old):
+            if idx > 0:
+                f_new.write(line)
+        os.remove("dnn_input_data/CombinedAverages.csv")
     
                 
 with open("correct_records.txt", 'w') as f:

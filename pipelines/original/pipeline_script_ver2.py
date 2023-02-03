@@ -10,7 +10,7 @@ from argparse import ArgumentParser
 import random
 import cv2
 from data_preparation_script import Transformation   
-
+from pandas import read_csv
 
 
 # Create and parse cli arguments #------------------
@@ -148,7 +148,8 @@ for i in range(num_maps):
     
     # Generate maps #-----------------------------------------
 
-    mapSize = random.choice([50,70,90])
+    #mapSize = random.choice([50,70,90])
+    mapSize = 50
 
     if mapSize == 50:
         num_dyn_obs = random.choice([0,2,4,6])
@@ -158,7 +159,7 @@ for i in range(num_maps):
 
     if mapSize == 90:
         num_dyn_obs = random.choice([0,4,8,12])
-    
+        
     map_name = "map-" + str(uuid())    
     width = mapSize
     height = mapSize
@@ -214,20 +215,43 @@ for i in range(num_maps):
     planner = random.choice(["dwa"])
     robot = random.choice(["burger"])    
     dyn_obs_velocity = (0.1, 1.0)
-    obs_radius = (0.1, 1.0)
+    obs_radius = (0.1, 2.0)
 
     sim_id = "sim-" + str(uuid())
     roslaunch_command = f"""roslaunch navpred-data-recorder start_arena_navpred.launch map_file:={map_name} num_episodes:={num_episodes} num_dynamic:={num_dyn_obs} obs_max_radius:={obs_radius[1]} obs_min_radius:={obs_radius[0]} obs_max_lin_vel:={dyn_obs_velocity[1]} obs_min_lin_vel:={dyn_obs_velocity[0]} local_planner:={planner} sim_id:={sim_id} timeout:={timeout} update_rate:={update_rate} visualization:={viz}"""
-                                
     os.system(roslaunch_command)
+
+        
+    # Check number of episodes -----------------------------             
+    sim_finished = True
+    sim_dir = os.path.join(local_records, map_name, sim_id)
+    
+    episodes_path = os.path.join(sim_dir, "episode.csv")
+    
+    if os.path.isfile(episodes_path):
+        episodes_csv = read_csv(os.path.join(sim_dir, "episode.csv"))
+        episodes = episodes_csv["episode"].tolist()
+        
+        for ep_num in range(0, 30):
+            if str(ep_num) not in episodes:
+                sim_finished = False
+                break
+        
+        if not sim_finished:
+            with open("failed_records.txt", 'a') as f:
+                f.write(f'missing episodes,{map_name},{sim_id}\n')
+            continue
+    else:
+        with open("failed_records.txt", 'a') as f:
+            f.write(f'missing files,{map_name},{sim_id}\n')
+        continue
+    
     get_metrics_command = f"""python3 ../../data-recorder/get_metrics.py --map_name {map_name} --sim_id {sim_id} --timeout {timeout}"""
     os.system(get_metrics_command)
     
+    # Error handling get_metrics.py ------------------------
     metrics_created = True
-    
-    sim_dir = os.path.join(local_records, map_name, sim_id)
     robots_path = os.path.join(sim_dir, "robots")
-    
 
     for robot in os.listdir(robots_path):
         metrics_path = os.path.join(robots_path, robot, "metrics.csv")
