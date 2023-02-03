@@ -1,6 +1,9 @@
 import numpy as np
 import random
 import math
+import rospy
+import subprocess
+import sys
 
 from map_distance_server.srv import GetDistanceMap
 
@@ -58,7 +61,7 @@ class MapManager:
         # Now get index of all cells were dist is > safe_dist_in_cells
         possible_cells = list(np.array(np.where(self.map_with_distances > safe_dist_in_cells)).transpose())
 
-        assert len(possible_cells) > 0, "No cells available"
+        # assert len(possible_cells) > 0, "No cells available"
 
         # The position should not lie in the forbidden zones and keep the safe 
         # dist to these zones as well. We could remove all cells here but since
@@ -68,7 +71,9 @@ class MapManager:
 
         while len(possible_cells) >= 0:
             if len(possible_cells) == 0:
-                raise Exception("can't find any non-occupied spaces")
+                rospy.signal_shutdown("Could not find any non-occupied spaces.\n Simulation killed.")
+                subprocess.call(["killall","-9","rosmaster"]) # apt-get install psmisc necessary
+                sys.exit()
 
             # Select a random cell
             x, y = possible_cells.pop(random.randint(0, len(possible_cells) - 1))
