@@ -206,18 +206,20 @@ for i in range(num_maps):
     # Planners with planning issues (dumb planners) : ["mpc", "arena", "sarl"]
     # Not working: ["cadrl", "rosnav"]
     
+    # Working robots: ["burger", "cob4", "agvota", "dingo", "jackal", "ridgeback", "rto", "tiago", "waffle", "youbot"]
+    
     # Alex: ["dwa", "rlca", "crowdnav"]
     # Bassel: ["dwa", "aio", "teb", "crowdnav", "rlca"] 
     # Ricardo: ["dwa", "aio", "teb", "crowdnav", "rlca"]
     # Bo: pending...
 
     planner = random.choice(["dwa"])
-    robot = random.choice(["burger"])    
+    robot = random.choice(["burger", "jackal", "ridgeback"])    
     dyn_obs_velocity = (0.1, 1.0)
     obs_radius = (0.1, 1.0)
 
     sim_id = "sim-" + str(uuid())
-    roslaunch_command = f"""roslaunch navpred-data-recorder start_arena_navpred.launch map_file:={map_name} num_episodes:={num_episodes} num_dynamic:={num_dyn_obs} obs_max_radius:={obs_radius[1]} obs_min_radius:={obs_radius[0]} obs_max_lin_vel:={dyn_obs_velocity[1]} obs_min_lin_vel:={dyn_obs_velocity[0]} local_planner:={planner} sim_id:={sim_id} timeout:={timeout} update_rate:={update_rate} visualization:={viz}"""
+    roslaunch_command = f"""roslaunch navpred-data-recorder start_arena_navpred.launch map_file:={map_name} num_episodes:={num_episodes} num_dynamic:={num_dyn_obs} obs_max_radius:={obs_radius[1]} obs_min_radius:={obs_radius[0]} obs_max_lin_vel:={dyn_obs_velocity[1]} obs_min_lin_vel:={dyn_obs_velocity[0]} model:={robot} local_planner:={planner} sim_id:={sim_id} timeout:={timeout} update_rate:={update_rate} visualization:={viz}"""
     os.system(roslaunch_command)
     
         
