@@ -233,8 +233,13 @@ for i in range(num_maps):
         episodes_csv = read_csv(os.path.join(sim_dir, "episode.csv"))
         episodes = episodes_csv["episode"].tolist()
         
+        max_miss_count = 3
+        miss_counter = 0
+        
         for ep_num in range(0, 30):
             if ep_num not in episodes:
+                miss_counter += 1
+            if miss_counter > max_miss_count:
                 sim_finished = False
                 break
         
