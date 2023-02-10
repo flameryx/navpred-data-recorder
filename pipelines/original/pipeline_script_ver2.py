@@ -253,7 +253,6 @@ for i in range(num_maps):
             f.write(f'missing files,{map_name},{sim_id}\n')
         continue
     
-    sim_dir = Path(dirname) / "sims_data_records" / "map-fd748e77-0733-4635-a704-9d20077fe130" / "sim-620cb114-3528-4a34-8595-26542d1d9ab7"
     robots_path = os.path.join(sim_dir, "robots")
     
     # Delete all lines with NaN values in the recorded csv files
