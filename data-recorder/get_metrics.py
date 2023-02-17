@@ -75,7 +75,7 @@ class DoneReason:
 
 class Config:
     TIMEOUT_TRESHOLD = 180e9
-    MAX_COLLISIONS = 3
+    MAX_COLLISIONS = 500
 
 
 class Metrics:

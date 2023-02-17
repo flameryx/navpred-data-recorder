@@ -148,27 +148,26 @@ dnn_input.mkdir(parents=True, exist_ok=True)
 for i in range(num_maps):
     
     # Generate maps #-----------------------------------------
+    
+    width = random.choice([50,70,90])
+    height = random.choice([50,70,90])
 
-    mapSize = random.choice([50,70,90])
+    mapSize = width * height
 
-    if mapSize == 50:
+    if mapSize <= 3700:
         num_dyn_obs = random.choice([0,2,4,6])
-
-    if mapSize == 70:
+    elif mapSize <= 6500:
         num_dyn_obs = random.choice([0,3,6,9])
-
-    if mapSize == 90:
+    else :
         num_dyn_obs = random.choice([0,4,8,12])
         
     map_name = "map-" + str(uuid())    
-    width = mapSize
-    height = mapSize
     map_type = "indoor"
     num_maps_to_generate = 1
     map_res = 0.5
     iterations = random.choice([15,30,45,70]) 
-    num_obstacles = 45
-    obstacle_size = 10
+    num_obstacles = random.choice([0,10,20,30,40]) 
+    obstacle_size = random.choice([2,4,6])
     corridor_width = random.choice([3,4,5])
 
     generate_maps_command = f"python3 cliMapGenerator.py --map_name {map_name} --width {width} --height {height} --map_type {map_type} --num_maps {num_maps_to_generate} --map_res {map_res} --save_path {maps_path} --iterations {iterations} --num_obstacles {num_obstacles} --obstacle_size {obstacle_size} --corridor_width {corridor_width}"
@@ -214,8 +213,9 @@ for i in range(num_maps):
     # Ricardo: ["dwa", "aio", "teb", "crowdnav", "rlca"]
     # Bo: pending...
 
-    planner = random.choice(["rlca"])
+    planner = random.choice(["teb", "dwa", "rlca", "crowdnav"])
     robot = random.choice(["burger", "jackal", "ridgeback"])    
+    
     dyn_obs_velocity = (0.1, 1.0)
     obs_radius = (0.1, 1.0)
 

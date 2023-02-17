@@ -63,7 +63,8 @@ class Transformation:
             columns = {
                 'average_linear_velocity': [str(round(average_linear_vel, 2))],
                 'average_obstalce_size': [str(round(average_obstalce_size, 2))],
-                'number_dynamic_obstalces':[str(round(obstacle_counter, 2))]
+                'number_dynamic_obstalces':[str(round(obstacle_counter, 2))],
+                'dyn_obstacle_occupation':[str(round(obstacle_counter*average_obstalce_size))]
                 }
 
             return pd.DataFrame(data = columns)
@@ -90,14 +91,21 @@ class Transformation:
             metrics = pd.read_csv("{}/metrics.csv".format(robot_path))
             average_time_diff = metrics["time_diff"].mean()
             average_path_length = metrics["path_length"].mean()
-            
+            average_collision_amount = metrics["collision_amount"].mean()
+
             episode_counter = 0
             count_if_collision = 0
             success_counter = 0
             timeout_couner = 0
+            timeout_collision_counter = 0
+
 
             for ind in metrics.index:
                 episode_counter = episode_counter + 1
+                
+                if metrics["result"][ind] == "TIMEOUT" and metrics["collision_amount"][ind] != 0:
+                    timeout_collision_counter = timeout_collision_counter +1
+
                 if metrics["collision_amount"][ind] != 0:
                     count_if_collision = count_if_collision + 1
                 elif metrics["result"][ind] == "GOAL_REACHED":
@@ -106,15 +114,18 @@ class Transformation:
                         timeout_couner = timeout_couner + 1
                 else:
                     print("Something went wrong here. Not identified result")
+
             
             if(episode_counter != 0):
                 success_rate = success_counter / episode_counter
-                collisiron_rate = count_if_collision / episode_counter
+                collision_rate = count_if_collision / episode_counter
                 timeout_rate = timeout_couner / episode_counter
+                timeout_collision_rate = timeout_collision_counter / episode_counter
             else:
                 success_rate = 0
-                collisiron_rate = 0
+                collision_rate = 0
                 timeout_rate = 0
+                timeout_collision_rate = 0
 
             #calculate metrics from robot directory
 
@@ -132,8 +143,10 @@ class Transformation:
                 'robot_max_speed' :[robot_max_speed],
                 'robot_radius':[robot_radius],
                 'success_rate': [str(round(success_rate, 2))],
-                'collisiron_rate': [str(round(collisiron_rate, 2))],
+                'collision_rate': [str(round(collision_rate, 2))],
+                'average_collision_amount':[str(round(average_collision_amount, 2))],
                 'timeout_rate':[str(round(timeout_rate, 2))],
+                'timeout_collision_rate':[str(round(timeout_collision_rate, 2))],
                 'average_path_length':[str(round(average_path_length, 2))],
                 'average_time_diff':[str(round(average_time_diff, 2))]   
             }
@@ -170,8 +183,9 @@ class Transformation:
         else:
             other_map_type = False
 
+
         # image data
-    
+
         with open('{}/map.yaml'.format(map_path)) as f:
             map = yaml.load(f, Loader=SafeLoader)
 
@@ -223,8 +237,10 @@ class Transformation:
 
             performance_metrics = dict(
                 success_rate = row.loc["success_rate"],
-                collisiron_rate = row.loc["collisiron_rate"],
+                collision_rate = row.loc["collision_rate"],
+                average_collision_amount = row.loc["average_collision_amount"],
                 timeout_rate = row.loc["timeout_rate"],
+                timeout_collision_rate = row.loc["timeout_collision_rate"],
                 average_path_length = row.loc["average_path_length"],
                 average_time_diff = row.loc["average_time_diff"]
 
@@ -241,6 +257,7 @@ class Transformation:
                 average_linear_velocity = row.loc["average_linear_velocity"],
                 average_obstalce_size = row.loc["average_obstalce_size"],
                 number_dynamic_obstalces = row.loc["number_dynamic_obstalces"],
+                dyn_obstacle_occupation = row.loc["dyn_obstacle_occupation"],
                 num_static_obstacles = row.loc["num_static_obstacles"],
                 static_obstacle_size = row.loc["static_obstacle_size"],
                 other_map_type = row.loc["other_map_type"],
@@ -272,6 +289,10 @@ class Transformation:
 
             with open('dnn_input_data/{}/{}_map_metrics.yml'.format(mapName,mapName), 'w') as outfile:
                 yaml.dump(map_metrics, outfile, default_flow_style=False)
+
+
+# example call
+# python3 data_preparation_script.py --record_path sims_data_records/map-0f78859c-9ad9-457f-99c7-73fb80ffc472 --map_path maps/map-0f78859c-9ad9-457f-99c7-73fb80ffc472
 
 if __name__ == "__main__":
         
