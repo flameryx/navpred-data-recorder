@@ -213,7 +213,7 @@ for i in range(num_maps):
     # Ricardo: ["dwa", "aio", "teb", "crowdnav", "rlca"]
     # Bo: pending...
 
-    planner = random.choice(["teb", "dwa", "rlca", "crowdnav"])
+    planner = random.choice(["teb", "rlca", "crowdnav"])
     robot = random.choice(["burger", "jackal", "ridgeback"])    
     
     dyn_obs_velocity = (0.1, 1.0)
