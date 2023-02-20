@@ -162,7 +162,7 @@ for i in range(num_maps):
         num_dyn_obs = random.choice([0,4,8,12])
         
     map_name = "map-" + str(uuid())    
-    map_type = "indoor"
+    map_type = random.choice(["indoor", "outdoor"])
     num_maps_to_generate = 1
     map_res = 0.5
     iterations = random.choice([15,30,45,70]) 
