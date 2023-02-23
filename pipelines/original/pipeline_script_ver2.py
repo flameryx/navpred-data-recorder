@@ -213,7 +213,7 @@ for i in range(num_maps):
     # Ricardo: ["dwa", "aio", "teb", "crowdnav", "rlca"]
     # Bo: pending...
 
-    planner = random.choice(["teb", "rlca", "crowdnav"])
+    planner = random.choice(["rlca", "crowdnav"])
     robot = random.choice(["burger", "jackal", "ridgeback"])    
     
     dyn_obs_velocity = (0.1, 1.0)
@@ -256,35 +256,40 @@ for i in range(num_maps):
     robots_path = os.path.join(sim_dir, "robots")
     
     # Delete all lines with NaN values in the recorded csv files
-    for robot in os.listdir(robots_path):
-        odom = pd.read_csv(os.path.join(robots_path, robot, "odom.csv"))
-        cmd_vel = pd.read_csv(os.path.join(robots_path, robot, "cmd_vel.csv"))
-        scan = pd.read_csv(os.path.join(robots_path, robot, "scan.csv"))
+    try:
+        for robot in os.listdir(robots_path):
+            odom = pd.read_csv(os.path.join(robots_path, robot, "odom.csv"))
+            cmd_vel = pd.read_csv(os.path.join(robots_path, robot, "cmd_vel.csv"))
+            scan = pd.read_csv(os.path.join(robots_path, robot, "scan.csv"))
 
-        odom_del_times = odom.loc[odom["data"].isnull()]["time"].tolist()
+            odom_del_times = odom.loc[odom["data"].isnull()]["time"].tolist()
 
-        for time in odom_del_times:
-            odom.drop(odom.loc[odom["time"] == time].index, inplace=True)
-            cmd_vel.drop(cmd_vel.loc[cmd_vel["time"] == time].index, inplace=True)
-            scan.drop(scan.loc[scan["time"] == time].index, inplace=True)
+            for time in odom_del_times:
+                odom.drop(odom.loc[odom["time"] == time].index, inplace=True)
+                cmd_vel.drop(cmd_vel.loc[cmd_vel["time"] == time].index, inplace=True)
+                scan.drop(scan.loc[scan["time"] == time].index, inplace=True)
 
-        cmd_vel_del_times = cmd_vel.loc[cmd_vel["data"].isnull()]["time"].tolist()
+            cmd_vel_del_times = cmd_vel.loc[cmd_vel["data"].isnull()]["time"].tolist()
 
-        for time in cmd_vel_del_times:
-            odom.drop(odom.loc[odom["time"] == time].index, inplace=True)
-            cmd_vel.drop(cmd_vel.loc[cmd_vel["time"] == time].index, inplace=True)
-            scan.drop(scan.loc[scan["time"] == time].index, inplace=True)
-            
-        scan_del_times = scan.loc[scan["data"].isnull()]["time"].tolist()
+            for time in cmd_vel_del_times:
+                odom.drop(odom.loc[odom["time"] == time].index, inplace=True)
+                cmd_vel.drop(cmd_vel.loc[cmd_vel["time"] == time].index, inplace=True)
+                scan.drop(scan.loc[scan["time"] == time].index, inplace=True)
+                
+            scan_del_times = scan.loc[scan["data"].isnull()]["time"].tolist()
 
-        for time in scan_del_times:
-            odom.drop(odom.loc[odom["time"] == time].index, inplace=True)
-            cmd_vel.drop(cmd_vel.loc[cmd_vel["time"] == time].index, inplace=True)
-            scan.drop(scan.loc[scan["time"] == time].index, inplace=True)
-            
-        odom.to_csv(os.path.join(robots_path, robot, "odom.csv"), index=False)
-        cmd_vel.to_csv(os.path.join(robots_path, robot, "cmd_vel.csv"), index=False)
-        scan.to_csv(os.path.join(robots_path, robot, "scan.csv"), index=False)
+            for time in scan_del_times:
+                odom.drop(odom.loc[odom["time"] == time].index, inplace=True)
+                cmd_vel.drop(cmd_vel.loc[cmd_vel["time"] == time].index, inplace=True)
+                scan.drop(scan.loc[scan["time"] == time].index, inplace=True)
+                
+            odom.to_csv(os.path.join(robots_path, robot, "odom.csv"), index=False)
+            cmd_vel.to_csv(os.path.join(robots_path, robot, "cmd_vel.csv"), index=False)
+            scan.to_csv(os.path.join(robots_path, robot, "scan.csv"), index=False)
+    except:
+        with open("failed_records.txt", 'a') as f:
+            f.write(f'missing files,{map_name},{sim_id}\n')
+        continue
     
     # Run get_metrics.py -----------------------------------
     get_metrics_command = f"""python3 ../../data-recorder/get_metrics.py --map_name {map_name} --sim_id {sim_id} --timeout {timeout}"""
