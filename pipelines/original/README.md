@@ -10,7 +10,7 @@ This module provides variability in the input parameters and generates a differe
 ![Map Creator](https://user-images.githubusercontent.com/73646817/226105572-fc9f0ee5-3d41-4413-bf26-a166357398bc.gif)
 
 
-- [Arena-bench Simulation](https://github.com/ignc-research/arena-bench):
+- [<strong>Arena-bench Simulation</strong>](https://github.com/ignc-research/arena-bench):
 This module is the development platform of our previous works, which is responsible for preparing and running the simulations. It takes as input the map created by the map generated, the navigation planner and the robot to be used, and many other randomized parameters to cause variety in the simulations. The obstacles are created with randomized attributes before the first simulation run, and each preserves the same characteristics through all simulated episodes.
 ![start up crop](https://user-images.githubusercontent.com/73646817/226103274-48944036-7d50-4117-a002-37840caae837.gif)
 
