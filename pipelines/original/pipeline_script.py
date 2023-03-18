@@ -7,9 +7,12 @@ import glob
 from uuid import uuid4 as uuid
 from pathlib import Path
 from argparse import ArgumentParser
-from random import randint, choice
+import random
 import cv2
 from data_preparation_script import Transformation   
+from pandas import read_csv
+import pandas as pd
+
 
 # Create and parse cli arguments #------------------
 
@@ -72,7 +75,7 @@ parser.add_argument(
     "--records_path",
     action="store",
     dest="records_path",
-    default="sims_data_records",
+    default="../data_recorder/data",
     help="The path where the recordings of the simulations ran on the maps are stored.",
     required=False,
 )
@@ -145,27 +148,35 @@ dnn_input.mkdir(parents=True, exist_ok=True)
 for i in range(num_maps):
     
     # Generate maps #-----------------------------------------
+    
+    width = random.choice([50,70,90])
+    height = random.choice([50,70,90])
 
-    map_name = "map-" + str(uuid())
-    width = randint(80, 150)
-    height = randint(80, 150)
-    map_type = choice(["indoor", "outdoor"])
+    mapSize = width * height
+
+    if mapSize <= 3700:
+        num_dyn_obs = random.choice([0,2,4,6])
+    elif mapSize <= 6500:
+        num_dyn_obs = random.choice([0,3,6,9])
+    else :
+        num_dyn_obs = random.choice([0,4,8,12])
+        
+    map_name = "map-" + str(uuid())    
+    map_type = random.choice(["indoor", "outdoor"])
     num_maps_to_generate = 1
     map_res = 0.5
-    iterations = randint(80, 200)
-    num_obstacles = randint(30, 60)
-    obstacle_size = 3
-    corridor_width = 3
+    iterations = random.choice([15,30,45,70]) 
+    num_obstacles = random.choice([0,10,20,30,40]) 
+    obstacle_size = random.choice([2,4,6])
+    corridor_width = random.choice([3,4,5])
 
     generate_maps_command = f"python3 cliMapGenerator.py --map_name {map_name} --width {width} --height {height} --map_type {map_type} --num_maps {num_maps_to_generate} --map_res {map_res} --save_path {maps_path} --iterations {iterations} --num_obstacles {num_obstacles} --obstacle_size {obstacle_size} --corridor_width {corridor_width}"
     os.system(generate_maps_command)
     
     this_map_folder = f"{maps_path}/{map_name}"
-    # os.system(f"python3 world_complexity.py --folders_path {this_map_folder}")
                        
     get_complexity_command = f"python3 world_complexity.py --image_path {this_map_folder}/{map_name}.png --yaml_path {this_map_folder}/map.yaml --dest_path {this_map_folder}"
     os.system(get_complexity_command)
-    
     
     # Add map generation parameters to map folder ------------
     f = open(os.path.join(local_maps, map_name, "generation_params.yaml"), "w")
@@ -186,47 +197,135 @@ for i in range(num_maps):
                 "obstacle_size: " + str(obstacle_size))
     f.close()
     
-    #---------------------------------------------------------
-    # Add padding to map image to 150x150 pixels #------------
-    
-    image_path = f"{this_map_folder}/{map_name}.png"
-    img_file = cv2.imread(image_path)
-    
-    width_padding = 150 - width
-    height_padding = 150 - height
-    image = cv2.copyMakeBorder(img_file, height_padding, 0, width_padding, 0, cv2.BORDER_CONSTANT)
-    
-    cv2.imwrite(image_path, image)
-    
+
     #---------------------------------------------------------
     # Run simulations and record data #-----------------------
     os.mkdir(os.path.join(local_records, map_name))
-
+    
+    # Working planners: ["dwa", "aio", "teb", "crowdnav", "rlca"]
+    # Planners with planning issues (dumb planners) : ["mpc", "arena", "sarl"]
+    # Not working: ["cadrl", "rosnav"]
+    
+    # Working robots: ["burger", "cob4", "agvota", "dingo", "jackal", "ridgeback", "rto", "tiago", "waffle", "youbot"]
+    
     # Alex: ["dwa", "rlca", "crowdnav"]
     # Bassel: ["dwa", "aio", "teb", "crowdnav", "rlca"] 
     # Ricardo: ["dwa", "aio", "teb", "crowdnav", "rlca"]
     # Bo: pending...
 
-    local_planners = ["cadrl"]
-    robot_models = ["burger"]    
-    dyn_obs_velocity = (0.1, 1.0)
-    obs_radius = (0.2, 1.0)
-    # static_obs_vertices = (3, 8)
-    obstacles_settings = []
-    num_dyn_obs = (0, 15)
-        
-    for j in range(num_settings):
-        # obstacles_settings.append((randint(0, 15), randint(0, 15)))
-        obstacles_settings.append(randint(num_dyn_obs[0], num_dyn_obs[1]))
+    planner = random.choice(["rlca", "crowdnav", "dwa"])
+    robot = random.choice(["burger", "jackal", "ridgeback"])    
     
-    for planner in local_planners:
-        for robot in robot_models:
-            for sett in obstacles_settings:
-                sim_id = "sim-" + str(uuid())
-                num_dyn_obs = sett
-                # num_static_obs = sett[1]
-                roslaunch_command = f""" roslaunch navpred-data-recorder start_arena_navpred.launch map_file:={map_name} num_episodes:={num_episodes} num_dynamic:={num_dyn_obs} obs_max_radius:={obs_radius[1]} obs_min_radius:={obs_radius[0]} obs_max_lin_vel:={dyn_obs_velocity[1]} obs_min_lin_vel:={dyn_obs_velocity[0]} local_planner:={planner} sim_id:={sim_id} timeout:={timeout} update_rate:={update_rate} visualization:={viz}"""                                     
-                os.system(roslaunch_command)
+    dyn_obs_velocity = (0.1, 1.0)
+    obs_radius = (0.1, 1.0)
+
+    sim_id = "sim-" + str(uuid())
+    roslaunch_command = f"""roslaunch navpred-data-recorder start_arena_navpred.launch map_file:={map_name} num_episodes:={num_episodes} num_dynamic:={num_dyn_obs} obs_max_radius:={obs_radius[1]} obs_min_radius:={obs_radius[0]} obs_max_lin_vel:={dyn_obs_velocity[1]} obs_min_lin_vel:={dyn_obs_velocity[0]} model:={robot} local_planner:={planner} sim_id:={sim_id} timeout:={timeout} update_rate:={update_rate} visualization:={viz}"""
+    os.system(roslaunch_command)
+    
+        
+    # Check number of episodes -----------------------------             
+    sim_finished = True
+    sim_dir = os.path.join(local_records, map_name, sim_id)
+    
+    episodes_path = os.path.join(sim_dir, "episode.csv")
+    
+    if os.path.isfile(episodes_path):
+        episodes_csv = read_csv(os.path.join(sim_dir, "episode.csv"))
+        episodes = episodes_csv["episode"].tolist()
+        
+        max_miss_count = 3
+        miss_counter = 0
+        
+        for ep_num in range(0, 30):
+            if ep_num not in episodes:
+                miss_counter += 1
+            if miss_counter > max_miss_count:
+                sim_finished = False
+                break
+        
+        if not sim_finished:
+            with open("failed_records.txt", 'a') as f:
+                f.write(f'missing episodes,{map_name},{sim_id}\n')
+            continue
+    else:
+        with open("failed_records.txt", 'a') as f:
+            f.write(f'missing files,{map_name},{sim_id}\n')
+        continue
+    
+    robots_path = os.path.join(sim_dir, "robots")
+    
+    # Delete all lines with NaN values in the recorded csv files
+    try:
+        for robot in os.listdir(robots_path):
+            odom = pd.read_csv(os.path.join(robots_path, robot, "odom.csv"))
+            cmd_vel = pd.read_csv(os.path.join(robots_path, robot, "cmd_vel.csv"))
+            scan = pd.read_csv(os.path.join(robots_path, robot, "scan.csv"))
+
+            odom_del_times = odom.loc[odom["data"].isnull()]["time"].tolist()
+
+            for time in odom_del_times:
+                odom.drop(odom.loc[odom["time"] == time].index, inplace=True)
+                cmd_vel.drop(cmd_vel.loc[cmd_vel["time"] == time].index, inplace=True)
+                scan.drop(scan.loc[scan["time"] == time].index, inplace=True)
+
+            cmd_vel_del_times = cmd_vel.loc[cmd_vel["data"].isnull()]["time"].tolist()
+
+            for time in cmd_vel_del_times:
+                odom.drop(odom.loc[odom["time"] == time].index, inplace=True)
+                cmd_vel.drop(cmd_vel.loc[cmd_vel["time"] == time].index, inplace=True)
+                scan.drop(scan.loc[scan["time"] == time].index, inplace=True)
                 
-                get_metrics_command = f"""python3 ../../data-recorder/get_metrics.py --map_name {map_name} --sim_id {sim_id} --timeout {timeout}"""
-                os.system(get_metrics_command)
+            scan_del_times = scan.loc[scan["data"].isnull()]["time"].tolist()
+
+            for time in scan_del_times:
+                odom.drop(odom.loc[odom["time"] == time].index, inplace=True)
+                cmd_vel.drop(cmd_vel.loc[cmd_vel["time"] == time].index, inplace=True)
+                scan.drop(scan.loc[scan["time"] == time].index, inplace=True)
+                
+            odom.to_csv(os.path.join(robots_path, robot, "odom.csv"), index=False)
+            cmd_vel.to_csv(os.path.join(robots_path, robot, "cmd_vel.csv"), index=False)
+            scan.to_csv(os.path.join(robots_path, robot, "scan.csv"), index=False)
+    except:
+        with open("failed_records.txt", 'a') as f:
+            f.write(f'missing files,{map_name},{sim_id}\n')
+        continue
+    
+    # Run get_metrics.py -----------------------------------
+    get_metrics_command = f"""python3 ../../data-recorder/get_metrics.py --map_name {map_name} --sim_id {sim_id} --timeout {timeout}"""
+    os.system(get_metrics_command)
+    
+    # Error handling get_metrics.py ------------------------
+    metrics_created = True
+    robots_path = os.path.join(sim_dir, "robots")
+
+    for robot in os.listdir(robots_path):
+        metrics_path = os.path.join(robots_path, robot, "metrics.csv")
+        
+        if not os.path.isfile(metrics_path):
+            metrics_created = False
+            break
+            
+    if not metrics_created:
+        with open("failed_records.txt", 'a') as f:
+            f.write(f'get_metrics.py,{map_name},{sim_id}\n')
+        continue
+        
+    #---------------------------------------------------------
+    # Data cleaning, analysis and map complexity calculation #
+
+    try:
+        Transformation.readData(
+            "sims_data_records/{}".format(map_name), 
+            "maps/{}".format(map_name)
+        )
+    except:
+        with open("failed_records.txt", 'a') as f:
+            f.write(f'data_preparation_script.py,{map_name},{sim_id}\n')
+        continue
+    #----------------------------------------------------------
+
+    with open("correct_records.txt", 'a') as f:
+        f.write(f'{map_name},{sim_id}\n')
+        
+    
