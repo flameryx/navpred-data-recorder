@@ -4,7 +4,11 @@ This is the task generator package designed to work with the [Arena Benchmark](h
 
 ## Task Modes
 
-Our task generator package offers four task modes. We define a task as the process of a robot driving to a desired goal. A new task is started when the robot reaches the goal or after 3 min have past. For the scenario task, the task is only resetted for the in the scenario file defined amount.
+Our task generator package offers five task modes. We define a task as the process of a robot driving to a desired goal. A new task is started when the robot reaches the goal or after 3 min have past. For the scenario task, the task is only resetted for the in the scenario file defined amount.
+
+### Navpred Task
+
+Creates a specified number of static and dynamic obstacles with randomized characteristics, and preserves them with their individual characteristics to be used on all episodes on the same map. When starting the task a random start position is selected for all obstacles, and a random goal and start position for the robot/s is also selected. After the robot reaches the goal a new task is started.
 
 ### Random Task
 
