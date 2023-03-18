@@ -1,5 +1,5 @@
 ## Pipeline
-<img src="/docs/imgs/trainning_pipeline.png">
+<img src="/documentation/trainning_pipeline.png">
 Our pipeline consists of four main modules and neural networks:
 
 - Map-Generator: 
