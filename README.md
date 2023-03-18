@@ -1,8 +1,7 @@
 # Arena Rosnav Navpred Data Recorder
 
 This is a package developed to facilitate the process of recording data of Arena Benchmark simulations, with the purpose of using that data to train Neural 
-Networks to make predictions on the performance of certain robots and planners under specific scenarios. This package is meant to be used together with the
-following Arena Benchmark infrastructure: https://github.com/ignc-research/nav-prediction.
+Networks to make predictions on the performance of certain robots and planners under specific scenarios. This package is meant to be used together with only the following Arena Benchmark infrastructure: https://github.com/ignc-research/nav-prediction.
 
 ## Contents
 
@@ -10,9 +9,8 @@ The package contains several .launch files used by nav-prediction to setup the s
 
 ### Data Recorder
 
-This package is based on an older version of the Arena Evaluation package (https://github.com/Arena-Rosnav/arena-evaluation) with some minor changes applied 
-to the data recording process and the recorded data file structure. Official documentation about this package can be found in the README.md inside the repo 
-(https://github.com/flameryx/navpred-data-recorder/tree/master/data-recorder/README.md).
+This package is based on an older version of the [Arena Evaluation package](https://github.com/Arena-Rosnav/arena-evaluation) with some minor changes applied 
+to the data recording process and the recorded data file structure. [Official documentation](https://github.com/flameryx/navpred-data-recorder/tree/master/data-recorder/README.md).
 
 Some of the changes made to this repository include:
 - Two different types of data recording nodes, one for recording general data about the simulation single instance per simulation) and one for recording data 
@@ -25,9 +23,8 @@ designated for each robot, which contains the data of that robot.
 
 ### Task Generator
 
-This package is based on an older version of the Task Generator package (https://github.com/Arena-Rosnav/task-generator) with some minor additions and alterations
-applied for the purpose of the Navigation Prediction Project. Official documentation about this package can be found in the README.md inside the repo
-(https://github.com/flameryx/navpred-data-recorder/blob/master/task-generator/README.md).
+This package is based on an older version of the [Task Generator package](https://github.com/Arena-Rosnav/task-generator) with some minor additions and alterations
+applied for the purpose of the Navigation Prediction Project. [Official documentation](https://github.com/flameryx/navpred-data-recorder/blob/master/task-generator/README.md).
 
 Some of the changes made to this repository include:
 - Addition of a new task mode called "Navpred". It creates a specified number of static and dynamic obstacles with randomized characteristics, and preserves 
@@ -44,6 +41,4 @@ data, we recommend using the latest version of Arena Benchmark.
 This package contains two data recording pipelines developed to make the process of recording randomized simulation data as easy and straightforward as 
 possible. The two pipelines are named "original" and "alternative". The main difference between them, is that the original uses maps generated using the
 [Arena Tools Map Generator](https://github.com/Arena-Rosnav/arena-tools), whereas the alternative pipeline employs a different method for generating maps,
-using generative adversarial network (GAN). The alternative pipeline did not make it to the later stages of development, for which reason we strongly recommend
-ONLY using the original pipeline. Official documentation about the original pipeline can be found in the README.md inside the repo 
-(https://github.com/flameryx/navpred-data-recorder/blob/master/pipelines/original/README.md).
+using generative adversarial network (GAN). The alternative pipeline did not make it to the later stages of development, for which reason we strongly recommend ONLY using the original pipeline. [Official documentation](https://github.com/flameryx/navpred-data-recorder/blob/master/pipelines/original/README.md).
