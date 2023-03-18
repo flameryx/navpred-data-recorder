@@ -30,13 +30,13 @@ This module train the neural net works for different planners. See the detail [h
 
 The pipeline script script is separated into three main independent processes:
 
-• Map generation: Creating the map or maps on which
+• <strong>Map generation</strong>: Creating the map or maps on which
 the simulations will run.
 
-• Run simulations and record data: Running the simu-
+• <strong>Run simulations and record data</strong>: Running the simu-
 lations under the randomized conditions while recording the data.
 
-• Data cleaning, processing and transformation: Clean-
+• <strong>Data cleaning, processing and transformation</strong>: Clean-
 ing, processing and transforming the recorded data.
 
 The pipeline takes as input the number of maps that the
