@@ -43,7 +43,7 @@ data, we recommend using the latest version of Arena Benchmark.
 
 This package contains two data recording pipelines developed to make the process of recording randomized simulation data as easy and straightforward as 
 possible. The two pipelines are named "original" and "alternative". The main difference between them, is that the original uses maps generated using the
-Arena Tools Map Generator (https://github.com/Arena-Rosnav/arena-tools), whereas the alternative pipeline employs a different method for generating maps,
+[Arena Tools Map Generator](https://github.com/Arena-Rosnav/arena-tools), whereas the alternative pipeline employs a different method for generating maps,
 using generative adversarial network (GAN). The alternative pipeline did not make it to the later stages of development, for which reason we strongly recommend
 ONLY using the original pipeline. Official documentation about the original pipeline can be found in the README.md inside the repo 
 (https://github.com/flameryx/navpred-data-recorder/blob/master/pipelines/original/README.md).
