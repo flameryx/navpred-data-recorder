@@ -79,7 +79,7 @@ Below is the software we used. We cannot guarantee older versions of the softwar
 
 
 
-### Installation
+## Installation
 Create a catkin workspace
 Clone the repo:
 ```
@@ -117,7 +117,7 @@ Finish
 
 
 
-### Recording
+## Recording
 Recording should running in poetry:
 ```
 cd ($your workspace)/src/nav-prediction && poetry shell
