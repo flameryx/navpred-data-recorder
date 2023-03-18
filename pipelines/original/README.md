@@ -1,8 +1,11 @@
-## Pipeline
+# Pipeline
+The purpose of this pipeline is to unify the entire process of generating data to train neural networks to make predictions about navigation robot and planner navigation performance into a single script.
+
+## Infrastructure
 <img src="https://github.com/flameryx/navpred-data-recorder/blob/master/documentation/training_pipeline.png">
 Our pipeline consists of four main modules and neural networks:
 
-- Map-Generator: 
+- <strong>Map-Generator</strong>: 
 This module provides variability in the input parameters and generates a different map for each simulation run.
 ![Map Creator](https://user-images.githubusercontent.com/73646817/226105572-fc9f0ee5-3d41-4413-bf26-a166357398bc.gif)
 
@@ -11,24 +14,60 @@ This module provides variability in the input parameters and generates a differe
 This module is the development platform of our previous works, which is responsible for preparing and running the simulations. It takes as input the map created by the map generated, the navigation planner and the robot to be used, and many other randomized parameters to cause variety in the simulations. The obstacles are created with randomized attributes before the first simulation run, and each preserves the same characteristics through all simulated episodes.
 ![start up crop](https://user-images.githubusercontent.com/73646817/226103274-48944036-7d50-4117-a002-37840caae837.gif)
 
-- Data Recorder:
+- <strong>Data Recorder</strong>:
 This module records the parameters that describe the simulation, and real-time data of the behavior of the robot and obstacles during all episodes of the simulation.It consists of two recorders, simulation recorder and robot recorder.
 ![data raw](https://user-images.githubusercontent.com/73646817/226103747-f486c05a-8f88-450d-b794-0a10ce23b3d0.gif)
 
-- Data Transformation: 
+- <strong>Data Transformation</strong>: 
 This module conveniently create directories for each map and simulation in which all the relevant data can be found. The end result is one line in the CSV data set which represents one simulation run on a random map. The output is also stored in directories with a yaml file format, which allows the map .png file to be stored with the final data.
 ![training data](https://user-images.githubusercontent.com/73646817/226103949-39df156f-6b29-423c-b183-76fa553b7517.gif)
 
-- Neural Networks:
+- <strong>Neural Networks</strong>:
 This module train the neural net works for different planners. See the detail [here](https://github.com/ignc-research/nav-prediction/tree/main/dnn).
 
+## Flow Chart
+<img src="https://github.com/flameryx/navpred-data-recorder/blob/master/documentation/pipeline_flow.png">
 
+The pipeline script script is separated into three main independent processes:
+
+• Map generation: Creating the map or maps on which
+the simulations will run.
+
+• Run simulations and record data: Running the simu-
+lations under the randomized conditions while recording the data.
+
+• Data cleaning, processing and transformation: Clean-
+ing, processing and transforming the recorded data.
+
+The pipeline takes as input the number of maps that the
+user wants to record data on. Subsequently, it enters a loop
+that only ends after simulations are ran on the number of
+maps specified by the user. Inside the loop, first, the map is
+randomly generated, selecting values from a range for each
+of the map generation arguments, and stored. Then a separate
+script analyzes the map and deducts the complexity of the
+map represented in different metrics. This map is then passed
+as input to arena-bench, together with other randomized
+values that define the conditions of the simulations that will
+be ran on that map. At the same time, while the simulations
+are running, the data recorder is recording everything that is
+happening during the simulation and storing it inside multiple
+CSV files. After the simulation is finished, the pipeline
+analyzes the recorded data to determine if there were any
+errors during the recording, which could lead to misleading
+or incomplete data. If the data fulfills the status requirements,
+another process is executed on the recorded data to expand it
+by extracting additional metrics that can be deduced from the
+initial recorded data. Finally, the data transformation script is
+executed on this expanded data and on the data of the used
+map, created during the map generation process, to bring it
+into the format needed to be used by the neural networks.
 
 ---
 
-## Running the Pipeline
+# Running the Pipeline
 
-### Prerequisites
+## Prerequisites
 Below is the software we used. We cannot guarantee older versions of the software to work. Yet, newer software is most likely working just fine.
 
 | Software      | Version        |
