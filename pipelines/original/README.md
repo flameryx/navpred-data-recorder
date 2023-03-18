@@ -1,4 +1,4 @@
-## Training Pipeline
+## Pipeline
 <img src="/docs/imgs/trainning_pipeline.png">
 Our pipeline consists of four main modules and neural networks:
 
