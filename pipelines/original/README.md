@@ -1,5 +1,5 @@
 ## Pipeline
-<img src="/documentation/trainning_pipeline.png">
+<img src="https://github.com/flameryx/navpred-data-recorder/blob/master/documentation/training_pipeline.png">
 Our pipeline consists of four main modules and neural networks:
 
 - Map-Generator: 
