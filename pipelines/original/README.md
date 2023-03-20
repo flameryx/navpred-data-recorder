@@ -65,7 +65,7 @@ into the format needed to be used by the neural networks.
 
 ---
 
-# Running the Pipeline
+# Usage
 
 ## Prerequisites
 Below is the software we used. We cannot guarantee older versions of the software to work. Yet, newer software is most likely working just fine.
@@ -139,4 +139,16 @@ python3 pipeline_script_ver2.py —num_maps 500 —num_episodes 30
 To facilitate the process of gathering only the data of recordings that finished successfully, run the following command after finishing recording a batch:
 ```
 python3 collect_records.py
+```
 
+## Results
+The pipeline will store the recorded data of the simulations in three different folders:
+- <strong>maps</strong>: Data about the maps used during the simulations.
+- <strong>sims_data_records</strong>: Simulation data on it's raw state.
+- <strong>dnn_input_data</strong>: Resulting data after the data transformation process. Here the data is in it's final format necessary to be given as input to the neural network. 
+
+After running the script <strong><i>collect_records.py</i></strong>, the data of these three folders is distributed into two additional folders:
+- <strong>correct_records</strong>: All data of the simulations that were recorded successfully without throwing any errors. This is the data you will want to use.
+- <strong>failed_records</strong>: All data of the simulations that threw an error during the pipeline and therefore are incomplete. This data can be ignored. It is not deleted because for certain purposes it could still be useful.
+
+These two folders contain the same three folder file structure mentioned above.
