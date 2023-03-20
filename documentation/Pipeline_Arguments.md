@@ -6,7 +6,7 @@ On the following table you will find all the different arguments that can be set
 |----------|:-------------:|:-----------:|-----------|
 | --num_maps | Integer | 10 | On how many different maps do you want to record simulation data. |
 | --num_episodes | Integer | 30 | How many episodes (simulation runs) do you want to record. |
-| --planners | String separated by commas | "dwa,aio,teb,crowdnav,rlca" | What local planners do you want to use on the simulations. | 
+| --planners | String separated by commas | "dwa,teb,crowdnav,rlca" | What local planners do you want to use on the simulations. | 
 | --robots | String separated by commas | "burger,agvota,dingo,jackal,ridgeback" | What robots do you want to use on the simulations. |
 | --num_dyn_obs | String separated by commas | "0,2,4,6" | How many dynamic obstacles do you want on the simulations. |
 | --obs_max_vel | Float | 1.0 | Maximum possible velocity an obstacle could have. | 

@@ -39,7 +39,7 @@ parser.add_argument(
     "--planners",
     action="store",
     dest="planners",
-    default="dwa,aio,teb,crowdnav,rlca",
+    default="dwa,teb,crowdnav,rlca",
     help="What planners do you want to use on your simulation?",
     required=False,
 )
