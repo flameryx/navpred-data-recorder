@@ -118,7 +118,7 @@ Finish
 
 
 ## Recording
-Recording should running in poetry:
+Recording should be done running inside the poetry shell of the arena-bench installation:
 ```
 cd ($your workspace)/src/nav-prediction && poetry shell
 ```
@@ -131,12 +131,12 @@ Then run the command:
 ```
 python3 pipeline_script_ver2.py —num_maps (number of maps) —num_episodes (number of episodes)
 ```
-You can set how many maps you want to record and how many times simulation resets on a map.
-For example, if you want to record 500 lines of data which based on 500 maps, and for each map, the simulation will resets 30 times, then run:
+You can set how many maps you want to record and how many times the simulation will be resetted on the map.
+For example, if you want to record 500 lines of data which based on 500 maps, and for each map, the simulation should reset 30 times, then run:
 ```
 python3 pipeline_script_ver2.py —num_maps 500 —num_episodes 30
 ```
-To facilitate the process of gathering only the data of recordings that finished successfully, running the command after finishing recording a batch:
+To facilitate the process of gathering only the data of recordings that finished successfully, run the following command after finishing recording a batch:
 ```
 python3 collect_records.py
 
