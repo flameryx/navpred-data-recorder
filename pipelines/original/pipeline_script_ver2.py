@@ -22,7 +22,43 @@ parser.add_argument(
     action="store",
     dest="num_maps",
     default=10,
-    help="How many maps do you want to create",
+    help="How many maps do you want to create?",
+    required=False,
+)
+
+parser.add_argument(
+    "--num_episodes",
+    action="store",
+    dest="num_episodes",
+    default=30,
+    help="How many episodes do you want to run on each simulation?",
+    required=False,
+)
+
+parser.add_argument(
+    "--planners",
+    action="store",
+    dest="planners",
+    default="dwa,aio,teb,crowdnav,rlca",
+    help="What planners do you want to use on your simulation?",
+    required=False,
+)
+
+parser.add_argument(
+    "--robots",
+    action="store",
+    dest="robots",
+    default="burger,agvota,dingo,jackal,ridgeback",
+    help="What robots do you want to use on your simulations?",
+    required=False,
+)
+
+parser.add_argument(
+    "--num_dyn_obs",
+    action="store",
+    dest="num_dyn_obs",
+    default="0,2,4,6",
+    help="How many dynamic obstacles do you want to be present on the simulation?",
     required=False,
 )
 
@@ -63,33 +99,6 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--num_dyn_obs",
-    action="store",
-    dest="num_dyn_obs",
-    default="0,2,4,6",
-    help="What should be the minimum radius of the dynamic obstacles?",
-    required=False,
-)
-
-parser.add_argument(
-    "--planners",
-    action="store",
-    dest="planners",
-    default="dwa,aio,teb,crowdnav,rlca",
-    help="What should be the minimum radius of the dynamic obstacles?",
-    required=False,
-)
-
-parser.add_argument(
-    "--robots",
-    action="store",
-    dest="robots",
-    default="burger,cob4,agvota,dingo,jackal,ridgeback,rto,tiago,waffle,youbot",
-    help="What should be the minimum radius of the dynamic obstacles?",
-    required=False,
-)
-
-parser.add_argument(
     "--timeout",
     action="store",
     dest="timeout",
@@ -99,18 +108,9 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--num_episodes",
+    "--map_types",
     action="store",
-    dest="num_episodes",
-    default=30,
-    help="How many episodes do you want to run on each simulation?",
-    required=False,
-)
-
-parser.add_argument(
-    "--map_type",
-    action="store",
-    dest="map_type",
+    dest="map_types",
     default="indoor,outdoor",
     help="On what type of maps do you want to record simulation data?",
     required=False,
@@ -121,25 +121,7 @@ parser.add_argument(
     action="store",
     dest="viz",
     default="flatland",
-    help="How do you want to see the simulations? [flatland, rivz, none]",
-    required=False,
-)
-
-parser.add_argument(
-    "--maps_path",
-    action="store",
-    dest="maps_path",
-    default="maps",
-    help="The path where the maps are stored.",
-    required=False,
-)
-
-parser.add_argument(
-    "--records_path",
-    action="store",
-    dest="records_path",
-    default="../data_recorder/data",
-    help="The path where the recordings of the simulations ran on the maps are stored.",
+    help="How do you want to see the simulations? [flatland, rviz, none]",
     required=False,
 )
 
@@ -157,12 +139,11 @@ args = parser.parse_args()
 
 planners = [item for item in args.planners.replace(" ", "").split(',')]
 robots = [item for item in args.robots.replace(" ", "").split(',')]
-map_types = [item for item in args.map_type.replace(" ", "").split(',')]
+map_types = [item for item in args.map_types.replace(" ", "").split(',')]
 number_dyn_obs = [int(item) for item in args.num_dyn_obs.replace(" ", "").split(',')]
 num_maps = int(args.num_maps)
 num_episodes = int(args.num_episodes)
-maps_path = args.maps_path
-records_path = args.records_path
+maps_path = "maps"
 del_records = bool(args.del_records)
 viz = args.viz
 
