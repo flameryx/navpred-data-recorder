@@ -3,7 +3,7 @@ On the following table you will find all the different arguments that can be set
 
 
 | Arguments | Input type | Default | Description  |
-|----------|:-------------:|-----------|-----------|
+|----------|:-------------:|:-----------:|-----------|
 | --num_maps | Integer | 10 | On how many different maps do you want to record simulation data. |
 | --num_episodes | Integer | 30 | How many episodes (simulation runs) do you want to record. |
 | --planners | String separated by commas | "dwa,aio,teb,crowdnav,rlca" | What local planners do you want to use on the simulations. | 
