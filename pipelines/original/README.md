@@ -150,4 +150,5 @@ The pipeline will store the recorded data of the simulations in three different 
 After running the script <strong><i>collect_records.py</i></strong>, the data of these three folders is distributed into two additional folders:
 - <strong>correct_records</strong>: All data of the simulations that were recorded successfully without throwing any errors. This is the data you will want to use.
 - <strong>failed_records</strong>: All data of the simulations that threw an error during the pipeline and therefore are incomplete. This data can be ignored. It is not deleted because for certain purposes it could still be useful.
+
 These two folders contain the same three folder file structure mentioned above.
