@@ -139,7 +139,7 @@ python3 pipeline_script_ver2.py —num_maps 500 —num_episodes 30
 To facilitate the process of gathering only the data of recordings that finished successfully, run the following command after finishing recording a batch:
 ```
 python3 collect_records.py
-
+```
 
 ## Results
 The pipeline will store the recorded data of the simulations in three different folders:
