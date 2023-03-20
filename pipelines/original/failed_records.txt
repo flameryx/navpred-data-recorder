@@ -1,1 +1,13 @@
 fail_reason,map_name,sim_id
+missing episodes,map-f4f588ce-3904-4bc5-b797-1925b64eacff,sim-46f10142-9c27-4b75-b81a-4dbc1216940a
+missing episodes,map-ceed8182-9b53-4b34-ba06-77d971d847d1,sim-0b9f60bc-6e0a-4a53-8cf1-21c8d72724db
+missing files,map-5e1d9420-862e-4425-86ae-1da4d0646d94,sim-e7051b8e-7b56-4b71-bce9-914e6167cfbc
+missing episodes,map-f70bb871-4d19-44f7-aaa7-73a06df0fe15,sim-0c49a0a0-6ec6-4c8e-b5e5-bd5d3959f2ab
+missing episodes,map-baa0a91d-60a8-46d3-9626-f83e8130702d,sim-8dee8127-95b0-421f-81d6-deb1efdf29eb
+missing episodes,map-981cc8b3-206b-4109-966d-a60b59387de2,sim-3890ee18-3830-4f8d-8d0e-2d71aad5893d
+missing files,map-914581ae-9fba-4fb4-8914-584be57f2f25,sim-2c61ffb4-4bfe-4ad3-969b-f90492620dcb
+missing files,map-d7ae0297-71d3-45db-8c46-34e4de3b3a0a,sim-7460f63d-7f3e-4ef2-94b6-ff2c2213e50b
+missing files,map-7b22dee3-254d-44fa-ab52-c379bdc24ca9,sim-dd9b63d7-3cff-4662-9334-ff894239c8ee
+missing files,map-2cbcf352-5e6d-47f5-b17d-7646d5d92433,sim-80187e85-d6dd-4655-934e-bb9a32d08990
+missing episodes,map-7ac32fe2-4c27-4629-9bad-c5255d79ba1d,sim-dc566134-1603-40b3-b5aa-5e5b5c7098ce
+missing files,map-a7411e2a-7d70-4f0d-9f10-8cd62be69baf,sim-13191157-bd6d-4dad-b7da-fa23c277ed11

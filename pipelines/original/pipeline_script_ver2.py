@@ -27,11 +27,65 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "--num_settings",
+    "--obs_max_vel",
     action="store",
-    dest="num_settings",
-    default=1,
-    help="How many different simulation settings you want to run on each map",
+    dest="obs_max_vel",
+    default=1.0,
+    help="What should be the maximum velocity of the dynamic obstacles?",
+    required=False,
+)
+
+parser.add_argument(
+    "--obs_min_vel",
+    action="store",
+    dest="obs_min_vel",
+    default=0.1,
+    help="What should be the minimum velocity of the dynamic obstacles?",
+    required=False,
+)
+
+parser.add_argument(
+    "--obs_max_radius",
+    action="store",
+    dest="obs_max_radius",
+    default=1.0,
+    help="What should be the maximum radius of the dynamic obstacles?",
+    required=False,
+)
+
+parser.add_argument(
+    "--obs_min_radius",
+    action="store",
+    dest="obs_min_radius",
+    default=0.1,
+    help="What should be the minimum radius of the dynamic obstacles?",
+    required=False,
+)
+
+parser.add_argument(
+    "--num_dyn_obs",
+    action="store",
+    dest="num_dyn_obs",
+    default="0,2,4,6",
+    help="What should be the minimum radius of the dynamic obstacles?",
+    required=False,
+)
+
+parser.add_argument(
+    "--planners",
+    action="store",
+    dest="planners",
+    default="dwa,aio,teb,crowdnav,rlca",
+    help="What should be the minimum radius of the dynamic obstacles?",
+    required=False,
+)
+
+parser.add_argument(
+    "--robots",
+    action="store",
+    dest="robots",
+    default="burger,cob4,agvota,dingo,jackal,ridgeback,rto,tiago,waffle,youbot",
+    help="What should be the minimum radius of the dynamic obstacles?",
     required=False,
 )
 
@@ -40,7 +94,7 @@ parser.add_argument(
     action="store",
     dest="timeout",
     default=30,
-    help="After how many seconds should the episode timeout.",
+    help="After how many seconds should the episode timeout?",
     required=False,
 )
 
@@ -49,7 +103,16 @@ parser.add_argument(
     action="store",
     dest="num_episodes",
     default=30,
-    help="How many episodes do you want to run on each simulation",
+    help="How many episodes do you want to run on each simulation?",
+    required=False,
+)
+
+parser.add_argument(
+    "--map_type",
+    action="store",
+    dest="map_type",
+    default="indoor,outdoor",
+    help="On what type of maps do you want to record simulation data?",
     required=False,
 )
 
@@ -85,15 +148,18 @@ parser.add_argument(
     action="store",
     dest="del_records",
     default=False,
-    help="Do you want to delete all recorded data before starting the pipeline",
+    help="Do you want to delete all recorded data before starting the pipeline?",
     required=False,
 )
 
 
 args = parser.parse_args()
 
+planners = [item for item in args.planners.replace(" ", "").split(',')]
+robots = [item for item in args.robots.replace(" ", "").split(',')]
+map_types = [item for item in args.map_type.replace(" ", "").split(',')]
+number_dyn_obs = [int(item) for item in args.num_dyn_obs.replace(" ", "").split(',')]
 num_maps = int(args.num_maps)
-num_settings = int(args.num_settings)
 num_episodes = int(args.num_episodes)
 maps_path = args.maps_path
 records_path = args.records_path
@@ -151,18 +217,9 @@ for i in range(num_maps):
     
     width = random.choice([50,70,90])
     height = random.choice([50,70,90])
-
-    mapSize = width * height
-
-    if mapSize <= 3700:
-        num_dyn_obs = random.choice([0,2,4,6])
-    elif mapSize <= 6500:
-        num_dyn_obs = random.choice([0,3,6,9])
-    else :
-        num_dyn_obs = random.choice([0,4,8,12])
         
     map_name = "map-" + str(uuid())    
-    map_type = random.choice(["indoor", "outdoor"])
+    map_type = random.choice(map_types)
     num_maps_to_generate = 1
     map_res = 0.5
     iterations = random.choice([15,30,45,70]) 
@@ -207,17 +264,12 @@ for i in range(num_maps):
     # Not working: ["cadrl", "rosnav"]
     
     # Working robots: ["burger", "cob4", "agvota", "dingo", "jackal", "ridgeback", "rto", "tiago", "waffle", "youbot"]
-    
-    # Alex: ["dwa", "rlca", "crowdnav"]
-    # Bassel: ["dwa", "aio", "teb", "crowdnav", "rlca"] 
-    # Ricardo: ["dwa", "aio", "teb", "crowdnav", "rlca"]
-    # Bo: pending...
 
-    planner = random.choice(["rlca", "crowdnav", "dwa"])
-    robot = random.choice(["burger", "jackal", "ridgeback"])    
-    
-    dyn_obs_velocity = (0.1, 1.0)
-    obs_radius = (0.1, 1.0)
+    planner = random.choice(planners)
+    robot = random.choice(robots)    
+    dyn_obs_velocity = (args.obs_min_vel, args.obs_max_vel)
+    obs_radius = (args.obs_min_radius, args.obs_max_radius)
+    num_dyn_obs = random.choice(number_dyn_obs)
 
     sim_id = "sim-" + str(uuid())
     roslaunch_command = f"""roslaunch navpred-data-recorder start_arena_navpred.launch map_file:={map_name} num_episodes:={num_episodes} num_dynamic:={num_dyn_obs} obs_max_radius:={obs_radius[1]} obs_min_radius:={obs_radius[0]} obs_max_lin_vel:={dyn_obs_velocity[1]} obs_min_lin_vel:={dyn_obs_velocity[0]} model:={robot} local_planner:={planner} sim_id:={sim_id} timeout:={timeout} update_rate:={update_rate} visualization:={viz}"""
@@ -237,7 +289,7 @@ for i in range(num_maps):
         max_miss_count = 3
         miss_counter = 0
         
-        for ep_num in range(0, 30):
+        for ep_num in range(0, num_episodes):
             if ep_num not in episodes:
                 miss_counter += 1
             if miss_counter > max_miss_count:
